@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Control | Mission Vishwakarma</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /*-------------------------------------------
+         * THEME: ENHANCED TEAL & SLATE
+        /*-------------------------------------------*/
+        :root {
+            --primary-color: #0d9488; --primary-color-dark: #0f766e; --primary-color-light: #f0fdfa;
+            --sidebar-bg: #1e293b; --sidebar-text: #cbd5e1; --sidebar-text-hover: #ffffff;
+            --background-page: #f1f5f9; --background-card: #ffffff;
+            --text-primary: #0f172a; --text-secondary: #475569; --text-muted: #94a3b8;
+            --border-color: #e2e8f0; --success-color: #22c55e; --danger-color: #ef4444;
+            --warning-color: #f59e0b; --info-color: #3b82f6;
+            --font-family: 'Poppins', sans-serif; --border-radius: 0.75rem;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.05); --transition-speed: 0.3s ease;
+        }
+
+        /* Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-family); }
+        body { background-color: var(--background-page); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar (Matched to MD Dashboard) */
+        .sidebar {
+            width: 260px; background-color: var(--sidebar-bg); color: var(--sidebar-text);
+            display: flex; flex-direction: column; flex-shrink: 0; border-right: 1px solid var(--border-color); height: 100vh;
+        }
+        .sidebar-header { padding: 1.5rem 1.25rem; text-align: center; }
+        .logo-text { font-size: 1.6rem; font-weight: 700; color: var(--sidebar-text-hover); text-decoration: none; }
+        .sidebar-nav { flex-grow: 1; padding: 0 1rem; overflow-y: auto; }
+        .sidebar-nav a { 
+            display: flex; align-items: center; color: var(--sidebar-text); text-decoration: none; 
+            padding: 12px 18px; border-radius: 8px; margin-bottom: 8px; transition: var(--transition-speed); border-left: 4px solid transparent; 
+        }
+        .sidebar-nav a:hover { background-color: rgba(255, 255, 255, 0.05); color: var(--sidebar-text-hover); border-left-color: var(--primary-color); }
+        .sidebar-nav a.active { background-color: var(--primary-color); color: var(--sidebar-text-hover); font-weight: 600; }
+        .sidebar-nav i { margin-right: 12px; width: 20px; text-align: center; }
+
+        /* Main Content */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .header { 
+            background: var(--background-card); padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); 
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; 
+        }
+        .header h2 { font-size: 1.4rem; font-weight: 600; color: var(--text-primary); }
+        .content-area { padding: 1.5rem; overflow-y: auto; flex-grow: 1; }
+
+        /* KPI / Summary Section */
+        .summary-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: white; padding: 1rem; border-radius: var(--border-radius); box-shadow: var(--shadow-md); border-left: 4px solid var(--primary-color); }
+        .stat-card label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
+        .stat-card .val { font-size: 1.4rem; font-weight: 700; display: block; }
+
+        /* Task Cards */
+        .task-list-container { display: flex; flex-direction: column; gap: 12px; }
+        .task-card { 
+            background: var(--background-card); padding: 1.25rem; border-radius: var(--border-radius); 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: var(--shadow-md); border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .task-card:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.08); }
+        
+        .task-info h4 { font-size: 1rem; color: var(--text-primary); margin-bottom: 4px; font-weight: 600; }
+        .task-info p { font-size: 0.85rem; color: var(--text-secondary); }
+        .task-info i { margin-right: 5px; color: var(--primary-color); }
+
+        .task-actions { display: flex; align-items: center; gap: 15px; }
+
+        /* Status Badges */
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .status-Pending { background: #fff7ed; color: var(--warning-color); border: 1px solid #fed7aa; }
+        .status-In-Progress { background: #eff6ff; color: var(--info-color); border: 1px solid #bfdbfe; }
+        .status-Completed { background: #f0fdf4; color: var(--success-color); border: 1px solid #bbf7d0; }
+
+        /* Buttons */
+        .btn { 
+            padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; 
+            transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 0.85rem; 
+        }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--primary-color-dark); }
+        .btn-outline { background: #e2e8f0; color: var(--text-secondary); }
+        
+        .action-icon { font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
+        .action-icon:hover { transform: scale(1.2); }
+
+        /* Modal */
+        .modal { 
+            display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); 
+            justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(4px); 
+        }
+        .modal-content { background: white; padding: 2rem; border-radius: var(--border-radius); width: 100%; max-width: 450px; box-shadow: var(--shadow-md); }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); }
+        .form-control { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; outline: none; transition: 0.3s; font-size: 0.9rem; }
+        .form-control:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px var(--primary-color-light); }
+
+        @media (max-width: 768px) { .sidebar { display: none; } }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="logo-text">Vishwakarma</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/md/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="/md/siteDetailsPage" class="active"><i class="fas fa-building"></i> Site Details</a>
+            <a href="/md/EmployeesPage"><i class="fas fa-users-cog"></i> Employees</a>
+            <a href="/md/financialsPage"><i class="fas fa-wallet"></i> Financials</a>
+            <a href="/md/clientRequirementsPage"><i class="fas fa-user-check"></i> Client Requirements</a>
+            <a href="/md/stockRequestsPage"><i class="fas fa-cubes"></i> Stock Requests</a>
+            <a href="/md/allSitesPage"><i class="fas fa-map-marked-alt"></i> All Sites</a>
+            <a href="/md/allGalleryPage"><i class="fas fa-images"></i> Gallery</a>
+            <a href="/md/performancePage"><i class="fas fa-chart-pie"></i> Performance</a>
+            <a href="#" onclick="logout()" style="margin-top: 20px; color: var(--danger-color);"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <a href="#" id="backButton" class="btn btn-outline" style="padding: 8px 12px;"><i class="fas fa-arrow-left"></i></a>
+                <h2>Task Management</h2>
+            </div>
+            <button class="btn btn-primary" onclick="openTaskModal()"><i class="fas fa-plus"></i> New Task</button>
+        </header>
+
+        <section class="content-area">
+            <!-- Stats Summary -->
+            <div class="summary-bar">
+                <div class="stat-card">
+                    <label>Total Tasks</label>
+                    <span id="stat-total" class="val">0</span>
+                </div>
+                <div class="stat-card" style="border-left-color: var(--warning-color);">
+                    <label>Pending</label>
+                    <span id="stat-pending" class="val">0</span>
+                </div>
+                <div class="stat-card" style="border-left-color: var(--success-color);">
+                    <label>Completed</label>
+                    <span id="stat-completed" class="val">0</span>
+                </div>
+            </div>
+
+            <!-- Task List -->
+            <div id="taskList" class="task-list-container">
+                <!-- JS Dynamic Content -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h3 id="taskTitle" style="margin-bottom: 1.5rem; color: var(--text-primary);">New Task</h3>
+            <form id="taskForm">
+                <input type="hidden" id="taskId">
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="desc" class="form-control" placeholder="What needs to be done?" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Assign To</label>
+                    <input type="text" id="assignee" class="form-control" placeholder="Engineer or Worker Name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Deadline</label>
+                    <input type="date" id="deadline" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label>Current Status</label>
+                    <select id="status" class="form-control">
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Save Task</button>
+                    <button type="button" onclick="closeModal()" class="btn btn-outline" style="flex: 1;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+    const siteId = new URLSearchParams(location.search).get("siteId");
+
+    const taskListEl   = document.getElementById("taskList");
+    const taskForm     = document.getElementById("taskForm");
+    const taskModal    = document.getElementById("taskModal");
+    const taskTitleEl  = document.getElementById("taskTitle");
+
+    const taskIdEl     = document.getElementById("taskId");
+    const descEl       = document.getElementById("desc");
+    const assigneeEl   = document.getElementById("assignee");
+    const deadlineEl   = document.getElementById("deadline");
+    const statusEl     = document.getElementById("status");
+
+    document.getElementById('backButton').href=`/md/siteDetailsPage?siteId=${siteId}`;
+
+    /* ===============================
+       LOAD TASKS
+    =============================== */
+    async function loadTasks() {
+        try {
+            const res = await fetch(`/md/tasks/${siteId}`);
+            const data = await res.json();
+
+            taskListEl.innerHTML = data.length ? "" : '<div style="text-align:center; padding: 3rem; color: var(--text-muted);">No tasks assigned for this site.</div>';
+
+            let pending = 0, completed = 0;
+
+            data.forEach(t => {
+                const statusClass = t.status.replaceAll(" ", "-");
+                if (t.status === 'Pending') pending++;
+                if (t.status === 'Completed') completed++;
+
+                taskListEl.innerHTML += `
+                    <div class="task-card">
+                        <div class="task-info">
+                            <h4>${t.description}</h4>
+                            <p>
+                                <i class="fas fa-user-circle"></i> ${t.assignedTo || "Unassigned"} 
+                                <span style="margin: 0 10px; color: #ddd;">|</span>
+                                <i class="far fa-calendar-alt"></i> Due: ${new Date(t.deadline).toLocaleDateString('en-GB')}
+                            </p>
+                        </div>
+                        <div class="task-actions">
+                            <span class="badge status-${statusClass}">${t.status}</span>
+                            <i class="fas fa-edit action-icon" style="color:var(--primary-color)" onclick='editTask(${JSON.stringify(t)})'></i>
+                            <i class="fas fa-trash action-icon" style="color:var(--danger-color)" onclick="deleteTask(${t.taskId})"></i>
+                        </div>
+                    </div>`;
+            });
+
+            document.getElementById('stat-total').innerText = data.length;
+            document.getElementById('stat-pending').innerText = pending;
+            document.getElementById('stat-completed').innerText = completed;
+
+        } catch (err) { console.error("Error loading tasks", err); }
+    }
+
+    /* ===============================
+       MODAL CONTROLS
+    =============================== */
+    function openTaskModal() {
+        taskForm.reset();
+        taskIdEl.value = "";
+        taskTitleEl.innerText = "Create New Task";
+        taskModal.style.display = "flex";
+        deadlineEl.valueAsDate = new Date();
+    }
+
+    function closeModal() {
+        taskModal.style.display = 'none';
+    }
+
+    function editTask(t) {
+        taskIdEl.value   = t.taskId;
+        descEl.value     = t.description;
+        assigneeEl.value = t.assignedTo || "";
+        deadlineEl.value = t.deadline.split("T")[0];
+        statusEl.value   = t.status;
+
+        taskTitleEl.innerText = "Edit Task Details";
+        taskModal.style.display = "flex";
+    }
+
+    /* ===============================
+       SAVE TASK (ADD / UPDATE)
+    =============================== */
+    taskForm.onsubmit = async (e) => {
+        e.preventDefault();
+
+        const id = taskIdEl.value;
+        const payload = {
+            siteId,
+            description: descEl.value.trim(),
+            assignedTo: assigneeEl.value || null,
+            deadline: deadlineEl.value || null,
+            status: statusEl.value
+        };
+
+        await fetch(id ? `/md/tasks/${id}` : `/md/tasks`, {
+            method: id ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        closeModal();
+        loadTasks();
+    };
+
+    /* ===============================
+       DELETE TASK
+    =============================== */
+    async function deleteTask(id) {
+        if (confirm("Are you sure you want to delete this task?")) {
+            await fetch(`/md/tasks/${id}`, { method: "DELETE" });
+            loadTasks();
+        }
+    }
+
+    function logout() { fetch("/auth/logout", { method: "POST" }).then(() => location.href = "/"); }
+
+    loadTasks();
+</script>
+
+</body>
+</html>

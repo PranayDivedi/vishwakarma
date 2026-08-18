@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Materials | Vishwakarma</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        :root { --primary: #0d9488; --bg: #f1f5f9; --border: #e2e8f0; }
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: var(--bg); padding: 30px; margin: 0; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 12px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid var(--bg); padding-bottom: 15px; }
+        .btn { padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; text-decoration: none; }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; color: white; }
+        .Available { background: #22c55e; }
+        .Low-Stock { background: #f59e0b; }
+        .Out-of-Stock { background: #ef4444; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+        .modal-content { background:white; padding:30px; border-radius:12px; width:450px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2><i class="fas fa-boxes" style="color:var(--primary)"></i> Inventory Management</h2>
+            <div>
+                <a href="#" id="backBtn" style="margin-right:15px; text-decoration:none; color:#64748b;">Back</a>
+                <button class="btn btn-primary" onclick="openMatModal()">+ Add Material</button>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Material Name</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="matBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div id="matModal" class="modal">
+        <div class="modal-content">
+            <h3 id="matTitle">Add Material</h3>
+            <form id="matForm">
+                <input type="hidden" id="materialId">
+                <div style="margin-bottom:15px">
+                    <label>Item Name</label>
+                    <input type="text" id="itemName" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px" required>
+                </div>
+                <div style="margin-bottom:15px">
+                    <label>Quantity</label>
+                    <input type="text" id="quantity" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px" required>
+                </div>
+                <div style="margin-bottom:15px">
+                    <label>Status</label>
+                    <select id="status" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px">
+                        <option value="Available">Available</option>
+                        <option value="Low Stock">Low Stock</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%">Save Material</button>
+                <button type="button" onclick="closeMatModal()" class="btn" style="width:100%; margin-top:10px; background:#64748b; color:white">Cancel</button>
+            </form>
+        </div>
+    </div>
+<script>
+    /* ===============================
+       BASIC SETUP
+    =============================== */
+    const siteId = new URLSearchParams(location.search).get("siteId");
+    document.getElementById("backBtn").href =
+        `/md/siteDetailsPage?siteId=${siteId}`;
+
+    const matForm       = document.getElementById("matForm");
+    const matBody       = document.getElementById("matBody");
+    const materialIdEl  = document.getElementById("materialId");
+    const itemNameEl    = document.getElementById("itemName");
+    const quantityEl    = document.getElementById("quantity");
+    const statusEl      = document.getElementById("status");
+
+    /* ===============================
+       LOAD MATERIALS
+    =============================== */
+    async function loadMaterials() {
+        const res = await fetch(`/md/materials/${siteId}`);
+        const data = await res.json();
+
+        matBody.innerHTML = "";
+
+        data.forEach(m => {
+            const statusClass = m.status.replaceAll(" ", "-");
+
+            matBody.innerHTML += `
+                <tr>
+                    <td><strong>${m.itemName}</strong></td>
+                    <td>${m.quantity}</td>
+                    <td>
+                        <span class="status-badge ${statusClass}">
+                            ${m.status}
+                        </span>
+                    </td>
+                    <td>
+                        <i class="fas fa-edit"
+                           style="color:var(--primary); cursor:pointer; margin-right:12px"
+                           onclick='editMat(${JSON.stringify(m)})'></i>
+
+                        <i class="fas fa-trash"
+                           style="color:red; cursor:pointer"
+                           onclick="deleteMat(${m.materialId})"></i>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    /* ===============================
+       MODAL CONTROLS
+    =============================== */
+    function openMatModal() {
+        matForm.reset();
+        materialIdEl.value = "";
+        document.getElementById("matTitle").innerText = "Add Material";
+        document.getElementById("matModal").style.display = "flex";
+    }
+
+    function closeMatModal() {
+        document.getElementById("matModal").style.display = "none";
+    }
+
+    function editMat(m) {
+        document.getElementById("matTitle").innerText = "Edit Material";
+        materialIdEl.value = m.materialId;
+        itemNameEl.value   = m.itemName;
+        quantityEl.value   = m.quantity;
+        statusEl.value     = m.status;
+        document.getElementById("matModal").style.display = "flex";
+    }
+
+    /* ===============================
+       SAVE MATERIAL (ADD / UPDATE)
+    =============================== */
+    matForm.onsubmit = async (e) => {
+        e.preventDefault();
+
+        const id = materialIdEl.value;
+
+        const payload = {
+            siteId,
+            itemName: itemNameEl.value.trim(),
+            quantity: Number(quantityEl.value),
+            status: statusEl.value        // ✅ ALWAYS PASSED
+        };
+
+        console.log("PAYLOAD:", payload);
+
+        await fetch(id ? `/md/materials/${id}` : `/md/materials`, {
+            method: id ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        closeMatModal();
+        loadMaterials();
+    };
+
+    /* ===============================
+       DELETE MATERIAL
+    =============================== */
+    async function deleteMat(id) {
+        if (confirm("Remove this item?")) {
+            await fetch(`/md/materials/${id}`, { method: "DELETE" });
+            loadMaterials();
+        }
+    }
+
+    /* ===============================
+       INITIAL LOAD
+    =============================== */
+    loadMaterials();
+</script>
+
+</body>
+</html>

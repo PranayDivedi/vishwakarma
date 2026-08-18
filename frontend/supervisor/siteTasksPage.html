@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Control | Vishwakarma</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #f0fdfa;
+            --bg: #f8fafc;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --success: #22c55e;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+
+        body { 
+            background: var(--bg); 
+            color: var(--text-main); 
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container { 
+            max-width: 900px; 
+            margin: auto; 
+            background: white; 
+            padding: 25px; 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow);
+        }
+
+        /* Header Section */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 30px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h2 { font-size: 1.5rem; font-weight: 700; color: var(--text-main); }
+
+        .nav-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Buttons */
+        .btn { 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        
+        .btn-back { background: #f1f5f9; color: var(--text-sub); border: 1px solid var(--border); }
+        .btn-back:hover { background: var(--border); color: var(--text-main); }
+
+        .btn-secondary { background: #64748b; color: white; width: 100%; margin-top: 10px; }
+
+        /* Task Cards */
+        .task-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .task-card { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 18px; 
+            border: 1px solid var(--border); 
+            border-radius: var(--radius); 
+            transition: 0.2s;
+            background: white;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .task-card:hover { border-color: var(--primary); transform: translateX(4px); box-shadow: var(--shadow); }
+
+        .task-info { flex: 1; }
+        .task-info .title { font-weight: 700; font-size: 1rem; color: var(--text-main); margin-bottom: 4px; }
+        .task-info .meta { color: var(--text-sub); font-size: 0.8rem; display: flex; gap: 12px; flex-wrap: wrap; }
+        .task-info .meta i { margin-right: 4px; }
+
+        .task-actions { 
+            display: flex; 
+            align-items: center; 
+            gap: 20px; 
+            margin-left: 15px;
+        }
+
+        /* Status Badges */
+        .status-pill {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-Pending { background: #fff7ed; color: var(--warning); border: 1px solid #fed7aa; }
+        .status-In-Progress { background: #eff6ff; color: var(--info); border: 1px solid #bfdbfe; }
+        .status-Completed { background: #f0fdf4; color: var(--success); border: 1px solid #bbf7d0; }
+
+        .action-icons i { cursor: pointer; padding: 8px; transition: 0.2s; }
+        .fa-edit:hover { color: var(--primary); }
+        .fa-trash:hover { color: var(--danger); }
+
+        /* Modal */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(15, 23, 42, 0.6); 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white; 
+            padding: 30px; 
+            border-radius: 16px; 
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal h3 { margin-bottom: 20px; font-weight: 700; border-left: 4px solid var(--primary); padding-left: 12px; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); margin-bottom: 6px; }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            outline: none;
+            transition: 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .header { flex-direction: column; align-items: stretch; }
+            .header h2 { font-size: 1.25rem; }
+            .task-card { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .task-actions { margin-left: 0; width: 100%; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 12px; }
+            .container { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title">
+                <i class="fas fa-tasks fa-lg" style="color:var(--primary)"></i>
+                <h2>Task Management</h2>
+            </div>
+            <div class="nav-actions">
+                <a id="backButton" class="btn btn-back"><i class="fas fa-arrow-left"></i> Back</a>
+                <button class="btn btn-primary" onclick="openTaskModal()"><i class="fas fa-plus"></i> New Task</button>
+            </div>
+        </div>
+        
+        <div id="taskList" class="task-list">
+            <!-- Content Injected via JS -->
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h3 id="taskTitle">New Task</h3>
+            <form id="taskForm">
+                <input type="hidden" id="taskId">
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="desc" placeholder="What needs to be done?" required>
+                </div>
+                <div class="form-group">
+                    <label>Assign To</label>
+                    <input type="text" id="assignee" placeholder="Employee Name">
+                </div>
+                <div class="form-group">
+                    <label>Deadline</label>
+                    <input type="date" id="deadline">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="status">
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; justify-content: center;">Save Task</button>
+                <button type="button" onclick="document.getElementById('taskModal').style.display='none'" class="btn btn-secondary" style="justify-content: center;">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    const siteId = new URLSearchParams(location.search).get("siteId");
+
+    const taskListEl   = document.getElementById("taskList");
+    const taskForm     = document.getElementById("taskForm");
+    const taskModal    = document.getElementById("taskModal");
+    const taskTitleEl  = document.getElementById("taskTitle");
+
+    const taskIdEl     = document.getElementById("taskId");
+    const descEl       = document.getElementById("desc");
+    const assigneeEl   = document.getElementById("assignee");
+    const deadlineEl   = document.getElementById("deadline");
+    const statusEl     = document.getElementById("status");
+
+    document.getElementById('backButton').href = `/supervisor/siteDetailsPage?siteId=${siteId}`;
+
+    /* ===============================
+       LOAD TASKS
+    =============================== */
+    async function loadTasks() {
+        try {
+            const res = await fetch(`/md/tasks/${siteId}`);
+            const data = await res.json();
+
+            if (!data.length) {
+                taskListEl.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-sub);">
+                                            <i class="fas fa-clipboard-list fa-3x" style="opacity:0.2; margin-bottom:10px;"></i>
+                                            <p>No tasks assigned to this site yet.</p>
+                                        </div>`;
+                return;
+            }
+
+            taskListEl.innerHTML = "";
+
+            data.forEach(t => {
+                const statusClass = t.status.replaceAll(" ", "-");
+                const dateStr = t.deadline ? new Date(t.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "No Date";
+
+                taskListEl.innerHTML += `
+                    <div class="task-card">
+                        <div class="task-info">
+                            <div class="title">${t.description}</div>
+                            <div class="meta">
+                                <span><i class="fas fa-user-circle"></i> ${t.assignedTo || "Unassigned"}</span>
+                                <span><i class="fas fa-calendar-alt"></i> Due: ${dateStr}</span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <span class="status-pill status-${statusClass}">${t.status}</span>
+                            <div class="action-icons">
+                                <i class="fas fa-edit" onclick='editTask(${JSON.stringify(t)})'></i>
+                                <i class="fas fa-trash" onclick="deleteTask(${t.taskId})"></i>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        } catch (err) {
+            console.error("Load Error:", err);
+            taskListEl.innerHTML = "<p style='color:red; text-align:center;'>Error loading tasks.</p>";
+        }
+    }
+
+    /* ===============================
+       MODAL CONTROLS
+    =============================== */
+    function openTaskModal() {
+        taskForm.reset();
+        taskIdEl.value = "";
+        taskTitleEl.innerText = "New Task";
+        taskModal.style.display = "flex";
+    }
+
+    function editTask(t) {
+        taskIdEl.value   = t.taskId;
+        descEl.value     = t.description;
+        assigneeEl.value = t.assignedTo || "";
+        deadlineEl.value = t.deadline ? t.deadline.split("T")[0] : "";
+        statusEl.value   = t.status;
+
+        taskTitleEl.innerText = "Edit Task";
+        taskModal.style.display = "flex";
+    }
+
+    /* ===============================
+       SAVE TASK (ADD / UPDATE)
+    =============================== */
+    taskForm.onsubmit = async (e) => {
+        e.preventDefault();
+
+        const id = taskIdEl.value;
+
+        const payload = {
+            siteId,
+            description: descEl.value.trim(),
+            assignedTo: assigneeEl.value || null,
+            deadline: deadlineEl.value || null,
+            status: statusEl.value
+        };
+
+        try {
+            const response = await fetch(id ? `/md/tasks/${id}` : `/md/tasks`, {
+                method: id ? "PUT" : "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                taskModal.style.display = "none";
+                loadTasks();
+            } else {
+                alert("Failed to save task.");
+            }
+        } catch (err) {
+            console.error("Save Error:", err);
+        }
+    };
+
+    /* ===============================
+       DELETE TASK
+    =============================== */
+    async function deleteTask(id) {
+        if (confirm("Are you sure you want to delete this task?")) {
+            try {
+                const response = await fetch(`/md/tasks/${id}`, { method: "DELETE" });
+                if (response.ok) loadTasks();
+            } catch (err) {
+                console.error("Delete Error:", err);
+            }
+        }
+    }
+
+    /* ===============================
+       INITIAL LOAD
+    =============================== */
+    loadTasks();
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target == taskModal) {
+            taskModal.style.display = "none";
+        }
+    }
+</script>
+
+</body>
+</html>

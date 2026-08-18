@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Performance | Vishwakarma ERP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #f0fdfa;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #cbd5e1;
+            --sidebar-hover: #ffffff;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --radius: 1rem;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background-color: var(--bg-page); 
+            color: var(--text-main); 
+            display: flex; 
+            height: 100vh; 
+            width: 100vw;
+            overflow: hidden; 
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px; 
+            background-color: var(--sidebar-bg); 
+            color: var(--sidebar-text);
+            display: flex; 
+            flex-direction: column; 
+            flex-shrink: 0; 
+            height: 100vh;
+            transition: transform var(--transition); 
+            z-index: 1001;
+        }
+
+        .sidebar-header { padding: 2rem 1.5rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo-text { font-size: 1.6rem; font-weight: 800; color: white; text-decoration: none; letter-spacing: 1px; }
+
+        .sidebar-nav { flex-grow: 1; padding: 1rem; overflow-y: auto; }
+        .sidebar-nav a { 
+            display: flex; 
+            align-items: center; 
+            color: var(--sidebar-text); 
+            text-decoration: none; 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            margin-bottom: 6px; 
+            transition: var(--transition);
+        }
+        .sidebar-nav a:hover, .sidebar-nav a.active { 
+            background-color: var(--primary); 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3); 
+        }
+        .sidebar-nav i { width: 25px; margin-right: 12px; font-size: 1.1rem; text-align: center; }
+
+        /* Main Content */
+        .main-content { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh;
+            overflow: hidden; 
+            position: relative; 
+            width: 100%;
+        }
+        
+        .header { 
+            background: var(--bg-card); 
+            padding: 1rem 1.5rem; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            min-height: 70px;
+            flex-shrink: 0;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        
+        .menu-toggle {
+            display: none; 
+            background: var(--primary-light); 
+            border: none; 
+            color: var(--primary);
+            padding: 10px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-size: 1.2rem;
+            width: 40px;
+            height: 40px;
+        }
+
+        .header h2 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); }
+
+        .content-area { 
+            padding: 1.5rem; 
+            overflow-y: auto; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        /* KPI Visuals */
+        .kpi-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 1.25rem; 
+            margin-bottom: 1.5rem; 
+            flex-shrink: 0; 
+        }
+        .kpi-card { 
+            background: var(--bg-card); 
+            padding: 1.25rem; 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow); 
+            border: 1px solid var(--border); 
+            display: flex; 
+            flex-direction: column; 
+            gap: 5px;
+            transition: transform 0.2s;
+        }
+        .kpi-card:hover { transform: translateY(-3px); }
+        .kpi-title { font-size: 0.75rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
+
+        /* Filter Bar */
+        .filter-bar { 
+            display: flex; 
+            gap: 1rem; 
+            background: var(--bg-card); 
+            padding: 1rem; 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow); 
+            margin-bottom: 1.5rem; 
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .form-control { 
+            flex: 1; 
+            min-width: 200px; 
+            padding: 12px 16px; 
+            border: 1px solid var(--border); 
+            border-radius: 10px; 
+            outline: none; 
+            font-size: 0.9rem; 
+            transition: var(--transition);
+            background-color: #fcfcfd;
+        }
+        .form-control:focus { border-color: var(--primary); background-color: white; box-shadow: 0 0 0 4px var(--primary-light); }
+
+        /* Performance Grid */
+        .performance-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 1.5rem; 
+            flex-grow: 1; 
+            min-height: 0; 
+        }
+        .perf-column { display: flex; flex-direction: column; overflow: hidden; }
+        .col-title { 
+            font-weight: 700; 
+            font-size: 1rem; 
+            margin-bottom: 1rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 5px;
+        }
+        .count-badge { background: var(--primary-light); padding: 4px 12px; border-radius: 20px; font-size: .75rem; color: var(--primary); font-weight: 700; }
+
+        /* Scroll Area */
+        .list-scroll-area { 
+            flex-grow: 1; 
+            overflow-y: auto; 
+            padding-right: 5px; 
+        }
+        .list-scroll-area::-webkit-scrollbar { width: 5px; }
+        .list-scroll-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+        /* Case Cards */
+        .case-card { 
+            background: var(--bg-card); 
+            border-radius: var(--radius); 
+            padding: 1.25rem; 
+            margin-bottom: 1rem; 
+            box-shadow: var(--shadow); 
+            border: 1px solid var(--border);
+            border-left: 6px solid #ccc; 
+            transition: var(--transition);
+        }
+        .case-card.good { border-left-color: var(--success); }
+        .case-card.bad { border-left-color: var(--danger); }
+        
+        .case-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .case-header strong { font-size: 0.95rem; color: var(--text-main); }
+        .case-header span { font-size: 0.75rem; color: var(--text-muted); }
+        
+        .case-details { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 12px; line-height: 1.6; }
+        .case-footer { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding-top: 10px; 
+            border-top: 1px solid var(--border);
+        }
+        
+        .rating-stars { color: var(--warning); font-size: 0.8rem; letter-spacing: 1px; }
+
+        /* Mobile Overlay */
+        .sidebar-overlay {
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.5);
+            z-index: 1000; 
+            backdrop-filter: blur(4px);
+        }
+
+        /* Responsiveness Rectified */
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .sidebar-overlay.active { display: block; }
+            .menu-toggle { display: block; }
+        }
+
+        @media (max-width: 992px) {
+            .performance-grid { 
+                grid-template-columns: 1fr; 
+                display: flex;
+                flex-direction: column;
+                overflow-y: visible;
+                height: auto;
+            }
+            .perf-column {
+                overflow: visible;
+                height: auto;
+                margin-bottom: 2rem;
+            }
+            .list-scroll-area {
+                overflow: visible;
+                height: auto;
+            }
+            .header h2 { font-size: 1.1rem; }
+            #sup-display { display: none; }
+        }
+
+        @media (max-width: 600px) {
+            .content-area { padding: 1rem; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; }
+            .form-control { width: 100%; min-width: 0; }
+            .header { padding: 0.8rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="overlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="logo-text">VISHWAKARMA</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/supervisor/dashboard"><i class="fas fa-tachometer-alt"></i> My Dashboard</a>
+            <a href="/supervisor/allSitesPage"><i class="fas fa-building"></i> All Sites</a>
+            <a href="/supervisor/employeesPage"><i class="fas fa-users"></i> Workforce</a>
+            <a href="/supervisor/clientRequirementsPage"><i class="fas fa-clipboard-check"></i> Client Requirements</a>
+            <a href="/supervisor/performancePage" class="active"><i class="fas fa-chart-bar"></i> Performance</a>
+            <a href="/supervisor/allGalleryPage"><i class="fas fa-images"></i> Gallery</a>
+            <a href="/supervisor/stockRequestsPage"><i class="fas fa-boxes"></i> Stock Requests</a>
+            <a href="/supervisor/siteDetailsPage"><i class="fas fa-map-marked-alt"></i> Site Details</a>
+            <a href="#" onclick="logout()" style="margin-top:auto; color: #fca5a5;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h2>Performance Analytics</h2>
+            </div>
+            <div id="sup-display" style="font-weight: 600; color: var(--primary); font-size: 0.85rem; background: var(--primary-light); padding: 6px 14px; border-radius: 20px;">
+                <i class="fas fa-user-shield"></i> Supervisor View
+            </div>
+        </header>
+
+        <section class="content-area">
+            <!-- Stats Summary -->
+            <div class="kpi-grid">
+                <div class="kpi-card" style="border-top: 4px solid var(--success);">
+                    <div class="kpi-title">Positive Feedback</div>
+                    <div id="count-good" class="kpi-value">0</div>
+                </div>
+                <div class="kpi-card" style="border-top: 4px solid var(--danger);">
+                    <div class="kpi-title">Critical Incidents</div>
+                    <div id="count-bad" class="kpi-value">0</div>
+                </div>
+                <div class="kpi-card" style="border-top: 4px solid var(--info);">
+                    <div class="kpi-title">Performance Score</div>
+                    <div id="avg-rating" class="kpi-value">0.0</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-bar">
+                <input type="text" id="searchBox" class="form-control" placeholder="Search feedback details or site..." oninput="handleFilters()">
+                <select id="siteFilter" class="form-control" onchange="handleFilters()">
+                    <option value="all">All Active Sites</option>
+                </select>
+            </div>
+
+            <!-- Feedback Grid -->
+            <div class="performance-grid">
+                <div class="perf-column">
+                    <div class="col-title" style="color: var(--success);">
+                        <span><i class="fas fa-award"></i> Strengths</span>
+                        <span id="goodCountBadge" class="count-badge">0</span>
+                    </div>
+                    <div id="goodList" class="list-scroll-area"></div>
+                </div>
+                <div class="perf-column">
+                    <div class="col-title" style="color: var(--danger);">
+                        <span><i class="fas fa-tools"></i> Improvements</span>
+                        <span id="badCountBadge" class="count-badge">0</span>
+                    </div>
+                    <div id="badList" class="list-scroll-area"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let myLogs = [];
+
+        // Mobile Sidebar Toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        document.getElementById('overlay').onclick = toggleSidebar;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchMyLogs();
+        });
+
+        async function fetchMyLogs() {
+            try {
+                const res = await fetch('/supervisor/myPerformanceLogs');
+                myLogs = await res.json();
+                
+                // Populate Site Filter
+                const siteFilter = document.getElementById('siteFilter');
+                const uniqueSites = [...new Set(myLogs.map(l => l.siteName))];
+                
+                // Keep the first option
+                siteFilter.innerHTML = '<option value="all">All Active Sites</option>';
+                uniqueSites.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = s;
+                    siteFilter.appendChild(opt);
+                });
+
+                renderUI(myLogs);
+                calculateStats(myLogs);
+            } catch (err) { console.error("Error loading logs", err); }
+        }
+
+        function calculateStats(data) {
+            let good = 0, bad = 0;
+            let goodSum = 0, badSum = 0;
+
+            data.forEach(d => {
+                const rating = Number(d.rating) || 0;
+                if (d.caseType === 'Good') {
+                    good++;
+                    goodSum += rating;
+                } else if (d.caseType === 'Bad') {
+                    bad++;
+                    badSum += rating;
+                }
+            });
+
+            const total = good + bad;
+            const score = total ? ((goodSum - badSum) / total).toFixed(1) : "0.0";
+
+            document.getElementById('count-good').innerText = good;
+            document.getElementById('count-bad').innerText = bad;
+            const scoreEl = document.getElementById('avg-rating');
+            scoreEl.innerText = score;
+            
+            scoreEl.style.color = score > 0 ? "var(--success)" : score < 0 ? "var(--danger)" : "var(--text-muted)";
+        }
+
+        function renderUI(data) {
+            const gList = document.getElementById('goodList');
+            const bList = document.getElementById('badList');
+            gList.innerHTML = ''; bList.innerHTML = '';
+
+            let gCount = 0, bCount = 0;
+
+            data.forEach(item => {
+                const card = `
+                    <div class="case-card ${item.caseType.toLowerCase()}">
+                        <div class="case-header">
+                            <strong><i class="fas fa-map-marker-alt" style="color:var(--primary); font-size: 0.8rem;"></i> ${item.siteName}</strong>
+                            <span>${new Date(item.createdAt).toLocaleDateString('en-GB')}</span>
+                        </div>
+                        <div class="case-details">${item.details}</div>
+                        <div class="case-footer">
+                            <div class="rating-stars">${getStars(item.rating)}</div>
+                            <span style="font-size: 0.7rem; color: var(--success); font-weight: 600;"><i class="fas fa-check-circle"></i> VERIFIED</span>
+                        </div>
+                    </div>
+                `;
+                if(item.caseType === 'Good') {
+                    gList.innerHTML += card;
+                    gCount++;
+                } else {
+                    bList.innerHTML += card;
+                    bCount++;
+                }
+            });
+
+            if(gCount === 0) gList.innerHTML = '<div style="text-align:center; padding:3rem; color:var(--text-muted);"><i class="fas fa-comment-slash fa-2x" style="display:block; margin-bottom:10px; opacity:0.5;"></i><p>No positive logs yet.</p></div>';
+            if(bCount === 0) bList.innerHTML = '<div style="text-align:center; padding:3rem; color:var(--text-muted);"><i class="fas fa-shield-alt fa-2x" style="display:block; margin-bottom:10px; opacity:0.5;"></i><p>No critical incidents reported.</p></div>';
+
+            document.getElementById('goodCountBadge').innerText = gCount;
+            document.getElementById('badCountBadge').innerText = bCount;
+        }
+
+        function getStars(num) {
+            let s = '';
+            for(let i=1; i<=5; i++) {
+                s += i <= num ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
+            }
+            return s;
+        }
+
+        function handleFilters() {
+            const search = document.getElementById('searchBox').value.toLowerCase();
+            const site = document.getElementById('siteFilter').value;
+
+            const filtered = myLogs.filter(d => {
+                const matchSearch = d.details.toLowerCase().includes(search) || d.siteName.toLowerCase().includes(search);
+                const matchSite = site === 'all' || d.siteName === site;
+                return matchSearch && matchSite;
+            });
+            renderUI(filtered);
+            calculateStats(filtered);
+        }
+
+        function logout() { 
+            if(confirm("Are you sure you want to logout?")) {
+                fetch("/auth/logout", { method: "POST" }).then(() => window.location.href = "/"); 
+            }
+        }
+    </script>
+</body>
+</html>

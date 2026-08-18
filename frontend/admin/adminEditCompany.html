@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Vishwakarma ERP | Edit Company</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #0d9488;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            padding: 2rem;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 720px;
+            margin: auto;
+            background: var(--card);
+            padding: 2.5rem;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 1.4rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .readonly {
+            background: #f8fafc;
+            cursor: not-allowed;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .save {
+            background: var(--primary);
+            color: white;
+        }
+
+        .cancel {
+            background: #e5e7eb;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Edit Company</h1>
+
+    <form id="editForm">
+
+        <div class="form-group">
+            <label>Company ID</label>
+            <input type="text" id="companyId" class="readonly" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Company Name *</label>
+            <input type="text" id="companyName" required>
+        </div>
+
+        <div class="form-group">
+            <label>Contact Person</label>
+            <input type="text" id="contactPerson">
+        </div>
+
+        <div class="form-group">
+            <label>Contact Email</label>
+            <input type="email" id="contactEmail">
+        </div>
+
+        <div class="form-group">
+            <label>Contact Phone</label>
+            <input type="text" id="contactPhone">
+        </div>
+
+        <div class="form-group">
+            <label>Address</label>
+            <textarea id="address"></textarea>
+        </div>
+       <div class="form-group">
+            <label>Subscription End Date</label>
+            <textarea id="subscriptionEndDate"></textarea>
+        </div>
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label>Status</label>
+            <select id="status"  >
+                <option value="Active">Active</option>
+                <option value="InActive">Inactive</option>
+        </div>
+        <div class="form-group">
+            <label>Created At</label>
+            <input type="text" id="createdAt" class="readonly" readonly>
+        </div>
+
+        <div class="actions">
+            <button type="button" class="btn cancel" onclick="goBack()">Cancel</button>
+            <button type="submit" class="btn save">Save Changes</button>
+        </div>
+
+    </form>
+</div>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const companyId = params.get("companyId");
+
+    /* ===============================
+       AUTH SAFE FETCH
+    =============================== */
+    async function authFetch(url, options = {}) {
+        const res = await fetch(url, options);
+        const data = await res.json();
+
+        if (res.status === 401) {
+            alert(data.error || "Not authenticated");
+            window.location.href = data.redirect || "/";
+            throw new Error("Not authenticated");
+        }
+
+        return data;
+    }
+
+    /* ===============================
+       LOAD COMPANY DETAILS
+    =============================== */
+    async function loadCompany() {
+        try {
+            const c = await authFetch(
+                `/admin/CompanyDataForAdmin?companyId=${companyId}`
+            );
+
+            document.getElementById("companyId").value = c.companyId;
+            document.getElementById("companyName").value = c.companyName || "";
+            document.getElementById("contactPerson").value = c.contactPerson || "";
+            document.getElementById("contactEmail").value = c.contactEmail || "";
+            document.getElementById("contactPhone").value = c.contactPhone || "";
+            document.getElementById("address").value = c.address || "";
+            document.getElementById("subscriptionEndDate").value = c.subscriptionEndDate || "";
+            document.getElementById("createdAt").value = c.createdAt || "";
+        document.getElementById('status').value = c.status;
+
+
+        } catch (err) {
+            console.error(err);
+            alert("Failed to load company details");
+        }
+    }
+
+    /* ===============================
+       UPDATE COMPANY
+    =============================== */
+    document.getElementById("editForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const body = {
+            companyName: document.getElementById("companyName").value,
+            contactPerson: document.getElementById("contactPerson").value,
+            contactEmail: document.getElementById("contactEmail").value,
+            contactPhone: document.getElementById("contactPhone").value,
+            subscriptionEndDate: document.getElementById("subscriptionEndDate").value,
+            address: document.getElementById("address").value,
+            status: document.getElementById("status").value
+        };
+
+        try {
+            await authFetch(
+                `/admin/AdminUpdateCompany?companyId=${companyId}`,
+                {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                }
+            );
+
+            alert("Company updated successfully");
+            window.location.href = "/admin/";
+
+        } catch (err) {
+            console.error(err);
+            alert("Failed to update company");
+        }
+    });
+
+    function goBack() {
+        window.location.href = "/admin/";
+    }
+
+    /* ===============================
+       INIT
+    =============================== */
+    if (companyId) {
+        loadCompany();
+    } else {
+        document.body.innerHTML = "<h2>Invalid request: Company ID missing</h2>";
+    }
+</script>
+
+</body>
+</html>

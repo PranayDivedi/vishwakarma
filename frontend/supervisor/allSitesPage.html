@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Vishwakarma - Portfolio Overview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #f0fdfa;
+            --sidebar-bg: #1e293b;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --radius: 1rem;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-page); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar Styling */
+        .sidebar { 
+            width: 260px; 
+            background: var(--sidebar-bg); 
+            color: #cbd5e1; 
+            display: flex; 
+            flex-direction: column; 
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header { 
+            padding: 1.5rem; 
+            text-align: center; 
+            font-weight: 700; 
+            font-size: 1.4rem; 
+            color: white; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+        }
+
+        .sidebar-nav { padding: 1rem; flex-grow: 1; overflow-y: auto; }
+        .sidebar-nav a { 
+            display: flex; 
+            align-items: center; 
+            color: #94a3b8; 
+            text-decoration: none; 
+            padding: 12px 15px; 
+            border-radius: 12px; 
+            margin-bottom: 5px; 
+            transition: 0.2s; 
+        }
+        .sidebar-nav a:hover, .sidebar-nav a.active { 
+            background: var(--primary); 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+        }
+        .sidebar-nav i { width: 25px; margin-right: 10px; font-size: 1.1rem; }
+
+        /* Layout Structure */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        
+        .header { 
+            background: white; 
+            padding: 1rem 1.5rem; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            z-index: 10;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        
+        .menu-btn {
+            display: none;
+            background: var(--primary-light);
+            border: none;
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .content-area { padding: 1.5rem; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; }
+
+        /* KPI Grid */
+        .kpi-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 1.25rem; 
+            margin-bottom: 2rem; 
+        }
+        .kpi-card { 
+            background: white; 
+            padding: 1.5rem; 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow); 
+            border-left: 6px solid; 
+            display: flex; 
+            align-items: center; 
+            gap: 1.25rem;
+            transition: transform 0.2s;
+        }
+        .kpi-card:hover { transform: translateY(-3px); }
+        .kpi-card i { font-size: 2rem; }
+        .kpi-card .val { font-size: 1.6rem; font-weight: 700; color: var(--text-main); }
+        .kpi-card .lab { font-size: 0.8rem; color: var(--text-sub); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+        /* Filter Bar */
+        .filter-bar { 
+            display: flex; 
+            gap: 1rem; 
+            background: white; 
+            padding: 0.75rem 1.25rem; 
+            border-radius: var(--radius); 
+            margin-bottom: 1.5rem; 
+            box-shadow: var(--shadow); 
+            align-items: center;
+        }
+        .search-input { 
+            flex-grow: 1; 
+            padding: 10px; 
+            border: none; 
+            outline: none; 
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        /* Card & Tables */
+        .card { 
+            background: white; 
+            border-radius: var(--radius); 
+            padding: 1.5rem; 
+            box-shadow: var(--shadow); 
+            margin-bottom: 2rem; 
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        .card-header { 
+            font-weight: 700; 
+            font-size: 1.1rem; 
+            margin-bottom: 1.5rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            color: var(--sidebar-bg); 
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .table-wrap { overflow-x: auto; margin: 0 -1.5rem; padding: 0 1.5rem; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { 
+            background: var(--primary-light); 
+            color: var(--primary-dark); 
+            text-align: left; 
+            padding: 14px 16px; 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+        td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+
+        /* UI Elements */
+        .progress-box { display: flex; align-items: center; gap: 10px; width: 140px; }
+        .progress-bg { flex-grow: 1; height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); border-radius: 10px; }
+
+        .btn-view { 
+            background: #f1f5f9; 
+            color: var(--primary-dark); 
+            text-decoration: none; 
+            padding: 8px 16px; 
+            border-radius: 8px; 
+            font-size: 0.8rem; 
+            font-weight: 600; 
+            border: 1px solid var(--border); 
+            transition: 0.2s;
+            display: inline-block;
+        }
+        .btn-view:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .status-heading { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+        .status-heading span { 
+            font-size: 0.75rem; 
+            padding: 4px 12px; 
+            background: var(--primary-light); 
+            color: var(--primary-dark);
+            border-radius: 20px; 
+        }
+
+        details { 
+            background: #f8fafc; 
+            padding: 8px 12px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            max-width: 300px; 
+            border: 1px solid var(--border);
+        }
+        summary { font-weight: 600; color: var(--primary); font-size: 0.8rem; outline: none; }
+        details p { font-size: 0.8rem; padding-top: 8px; color: var(--text-sub); line-height: 1.5; }
+
+        .chart-box { max-width: 350px; margin: 0 auto; padding: 1rem; }
+
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Responsiveness */
+        @media (max-width: 992px) {
+            .sidebar {
+                position: absolute;
+                left: -260px;
+                height: 100%;
+            }
+            .sidebar.active { left: 0; }
+            .sidebar-overlay.active { display: block; }
+            .menu-btn { display: block; }
+            .header h1 { font-size: 1.2rem; }
+        }
+
+        @media (max-width: 600px) {
+            .content-area { padding: 1rem; }
+            .kpi-card { padding: 1.25rem; }
+            .header-right span { display: none; }
+            .card { padding: 1rem; }
+            .table-wrap { margin: 0 -1rem; padding: 0 1rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="overlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">VISHWAKARMA</div>
+        <nav class="sidebar-nav">
+            <a href="/supervisor/dashboard">
+                <i class="fas fa-tachometer-alt"></i> My Dashboard
+            </a>
+            <a href="/supervisor/allSitesPage" class="active">
+                <i class="fas fa-building"></i> All Sites
+            </a>
+            <a href="/supervisor/employeesPage">
+                <i class="fas fa-users"></i> Workforce
+            </a>
+            <a href="/supervisor/clientRequirementsPage">
+                <i class="fas fa-clipboard-check"></i> Client Requirements
+            </a>
+            <a href="/supervisor/performancePage">
+                <i class="fas fa-chart-bar"></i> Performance
+            </a>
+            <a href="/supervisor/allGalleryPage">
+                <i class="fas fa-images"></i> Gallery
+            </a>
+            <a href="/supervisor/stockRequestsPage">
+                <i class="fas fa-boxes"></i> Stock Requests
+            </a>
+            <a href="/supervisor/siteDetailsPage">
+                <i class="fas fa-map-marked-alt"></i> Site Details
+            </a>
+            <a href="#" onclick="logout()" style="margin-top:auto; color: #fca5a5;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 id="page-title">Executive Portfolio</h1>
+            </div>
+            <div class="header-right" style="display: flex; align-items: center; gap: 12px;">
+                <span id="supervisor-name" style="font-weight: 600;">Administrator</span>
+                <img id="supervisor-avatar" src="https://i.pravatar.cc/150?u=admin" style="width: 40px; height: 40px; border-radius: 12px; border: 2px solid var(--primary-light);">
+            </div>
+        </header>
+
+        <section class="content-area">
+            
+            <!-- KPI Grid Section -->
+            <div class="kpi-grid">
+                <div class="kpi-card" style="border-color: var(--info);">
+                    <i class="fas fa-play-circle" style="color: var(--info);"></i>
+                    <div>
+                        <div class="val" id="count-ongoing">0</div>
+                        <div class="lab">Ongoing</div>
+                    </div>
+                </div>
+                <div class="kpi-card" style="border-color: var(--success);">
+                    <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                    <div>
+                        <div class="val" id="count-completed">0</div>
+                        <div class="lab">Completed</div>
+                    </div>
+                </div>
+                <div class="kpi-card" style="border-color: var(--danger);">
+                    <i class="fas fa-pause-circle" style="color: var(--danger);"></i>
+                    <div>
+                        <div class="val" id="count-halted">0</div>
+                        <div class="lab">Halted</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-bar">
+                <i class="fas fa-search" style="color: var(--text-sub);"></i>
+                <input type="text" id="searchBox" class="search-input" placeholder="Search site, engineer or client...">
+            </div>
+
+            <!-- TABLE 1: ONGOING -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="status-heading">
+                        <i class="fas fa-play-circle" style="color: var(--info)"></i> Ongoing Projects 
+                        <span id="ongoing-badge">0</span>
+                    </div>
+                    <a href="/supervisor/addSitePage" class="btn-view" style="background: var(--primary); color: white; border: none;">+ New Site</a>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Site & Client</th>
+                                <th>Progress</th>
+                                <th>Risk Level</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ongoingTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TABLE 2: COMPLETED -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="status-heading">
+                        <i class="fas fa-check-double" style="color: var(--success)"></i> Completed Portfolio
+                        <span id="completed-badge">0</span>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Site Name</th>
+                                <th>Completed On</th>
+                                <th>Client Feedback</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="completedTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TABLE 3: HALTED -->
+            <div class="card" style="border-top: 4px solid var(--danger);">
+                <div class="card-header">
+                    <div class="status-heading">
+                        <i class="fas fa-pause-circle" style="color: var(--danger)"></i> Halted Projects
+                        <span id="halted-badge">0</span>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Site Name</th>
+                                <th>Halt Reason</th>
+                                <th>Halted Since</th>
+                                <th>Inactive</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="haltedTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Portfolio Status Share</div>
+                <div class="chart-box">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let allSites = [];
+        let statusChartInstance = null;
+
+        // Mobile Sidebar Toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        document.getElementById('overlay').onclick = toggleSidebar;
+
+        const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-GB') : 'N/A';
+        const getDaysDiff = (dateStr) => {
+            if (!dateStr) return '0';
+            const diff = new Date() - new Date(dateStr);
+            return Math.floor(diff / (1000 * 60 * 60 * 24));
+        };
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await fetchSitesData();
+            document.getElementById("searchBox").addEventListener("input", filterAndRender);
+        });
+
+        async function fetchSitesData() {
+            try {
+                const res = await fetch("/supervisor/supervisorSites");
+                allSites = await res.json();
+                filterAndRender();
+            } catch (e) { console.error("Data error", e); }
+        }
+
+        function filterAndRender() {
+            const term = document.getElementById("searchBox").value.toLowerCase();
+            const filtered = allSites.filter(s => 
+                s.siteName.toLowerCase().includes(term) || 
+                s.siteId.toLowerCase().includes(term) ||
+                (s.clientName && s.clientName.toLowerCase().includes(term))
+            );
+
+            const ongoing = filtered.filter(s => s.status === 'ongoing');
+            const completed = filtered.filter(s => s.status === 'completed');
+            const halted = filtered.filter(s => s.status === 'halted');
+
+            renderOngoing(ongoing);
+            renderCompleted(completed);
+            renderHalted(halted);
+            updateKPIs(ongoing, completed, halted);
+            renderChart(ongoing.length, completed.length, halted.length);
+        }
+
+        function renderOngoing(data) {
+            const tbody = document.getElementById("ongoingTableBody");
+            document.getElementById("ongoing-badge").textContent = data.length;
+            tbody.innerHTML = "";
+            data.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>
+                            <div style="font-weight:700">${s.siteName}</div>
+                            <div style="font-size:0.75rem; color:var(--text-sub)">Client: ${s.clientName || 'N/A'}</div>
+                        </td>
+                        <td>
+                            <div class="progress-box">
+                                <div class="progress-bg"><div class="progress-fill" style="width:${s.completion}%"></div></div>
+                                <span style="font-weight:600">${s.completion}%</span>
+                            </div>
+                        </td>
+                        <td><span style="color:${getRiskColor(s.risk)}; font-weight:700"><i class="fas fa-circle" style="font-size:8px; vertical-align:middle; margin-right:5px"></i>${s.risk}</span></td>
+                        <td><a href="/supervisor/siteDetailsPage?siteId=${s.siteId}" class="btn-view">Details</a></td>
+                    </tr>`;
+            });
+        }
+
+        function renderCompleted(data) {
+            const tbody = document.getElementById("completedTableBody");
+            document.getElementById("completed-badge").textContent = data.length;
+            tbody.innerHTML = "";
+            data.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${s.siteName}</strong><br><small class="text-sub">${s.siteId}</small></td>
+                        <td><i class="far fa-calendar-check" style="margin-right:5px"></i> ${formatDate(s.completedDate)}</td>
+                        <td>
+                            <details>
+                                <summary>Read Feedback</summary>
+                                <p>${s.feedback || 'No feedback provided yet.'}</p>
+                            </details>
+                        </td>
+                       <td><a href="/supervisor/siteDetailsPage?siteId=${s.siteId}" class="btn-view">Details</a></td>
+                    </tr>`;
+            });
+        }
+
+        function renderHalted(data) {
+            const tbody = document.getElementById("haltedTableBody");
+            document.getElementById("halted-badge").textContent = data.length;
+            tbody.innerHTML = "";
+            data.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${s.siteName}</strong><br><small class="text-sub">${s.siteId}</small></td>
+                        <td><details><summary>View Reason</summary><p>${s.haltReason || 'N/A'}</p></details></td>
+                        <td>${formatDate(s.haltDate)}</td>
+                        <td style="color:var(--danger); font-weight:700;">${getDaysDiff(s.haltDate)} Days</td>
+                        <td><a href="/supervisor/SiteDetailsPage?siteId=${s.siteId}" class="btn-view">Details</a></td>
+                    </tr>`;
+            });
+        }
+
+        function updateKPIs(ongoing, completed, halted) {
+            document.getElementById("count-ongoing").textContent = ongoing.length;
+            document.getElementById("count-completed").textContent = completed.length;
+            document.getElementById("count-halted").textContent = halted.length;
+        }
+
+        function getRiskColor(risk) {
+            if (risk === 'At Risk') return 'var(--danger)';
+            if (risk === 'Minor Delay') return 'var(--warning)';
+            return 'var(--success)';
+        }
+
+        function renderChart(on, comp, halt) {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            if (statusChartInstance) statusChartInstance.destroy();
+            statusChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Ongoing', 'Completed', 'Halted'],
+                    datasets: [{
+                        data: [on, comp, halt],
+                        backgroundColor: ['#3b82f6', '#10b981', '#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: { 
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: { padding: 20, usePointStyle: true, font: { family: 'Poppins', size: 12 } }
+                        } 
+                    }, 
+                    cutout: '75%',
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function logout() { 
+            if(confirm("Are you sure you want to logout?")) {
+                fetch("/auth/logout", { method: "POST" }).then(() => window.location.href = "/"); 
+            }
+        }
+    </script>
+</body>
+</html>

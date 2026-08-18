@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Vishwakarma - Site Engineer Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #f0fdfa;
+            --sidebar-bg: #1e293b;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --radius: 1rem;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --sidebar-width: 280px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background-color: var(--bg-page); 
+            color: var(--text-main); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        /* Sidebar Styling */
+        .sidebar { 
+            width: var(--sidebar-width); 
+            background: var(--sidebar-bg); 
+            color: #cbd5e1; 
+            display: flex; 
+            flex-direction: column; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .sidebar-header { 
+            padding: 1.5rem; 
+            text-align: center; 
+            font-weight: 800; 
+            font-size: 1.5rem; 
+            color: white; 
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .sidebar-nav { 
+            padding: 1rem; 
+            flex-grow: 1; 
+            overflow-y: auto;
+        }
+
+        .sidebar-nav a { 
+            display: flex; 
+            align-items: center; 
+            color: #94a3b8; 
+            text-decoration: none; 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            margin-bottom: 8px; 
+            transition: 0.2s; 
+            font-size: 0.95rem;
+        }
+
+        .sidebar-nav a:hover, .sidebar-nav a.active { 
+            background: var(--primary); 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+        }
+
+        .sidebar-nav i { width: 28px; font-size: 1.1rem; }
+
+        /* Main Content */
+        .main-content { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            position: relative;
+        }
+
+        .header { 
+            background: white; 
+            padding: 0.75rem 1.5rem; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            min-height: 70px;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        
+        .menu-toggle {
+            display: none;
+            background: var(--primary-light);
+            border: none;
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .content-area { 
+            padding: 1.5rem; 
+            overflow-y: auto; 
+            flex-grow: 1; 
+            scroll-behavior: smooth;
+        }
+
+        /* KPI Cards */
+        .kpi-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+            gap: 1.5rem; 
+            margin-bottom: 2rem; 
+        }
+
+        .kpi-card { 
+            background: white; 
+            padding: 1.5rem; 
+            border-radius: var(--radius); 
+            box-shadow: var(--shadow); 
+            display: flex; 
+            align-items: center; 
+            gap: 1.2rem; 
+            transition: transform 0.2s;
+        }
+
+        .kpi-card:hover { transform: translateY(-5px); }
+        
+        .kpi-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .kpi-card .val { font-size: 1.6rem; font-weight: 700; color: var(--text-main); }
+        .kpi-card .lab { font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
+
+        /* Filter Bar */
+        .filter-bar { 
+            display: flex; 
+            gap: 1rem; 
+            background: white; 
+            padding: 1rem; 
+            border-radius: var(--radius); 
+            margin-bottom: 1.5rem; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            flex-wrap: wrap;
+        }
+
+        .search-input { 
+            flex-grow: 1; 
+            padding: 12px 18px; 
+            border: 1px solid var(--border); 
+            border-radius: 10px; 
+            outline: none; 
+            font-size: 0.9rem;
+            transition: border 0.3s;
+        }
+        .search-input:focus { border-color: var(--primary); }
+
+        .select-input { 
+            padding: 12px; 
+            border: 1px solid var(--border); 
+            border-radius: 10px; 
+            min-width: 160px; 
+            outline: none; 
+            background: white;
+        }
+
+        /* Tables & Cards */
+        .card { 
+            background: white; 
+            border-radius: var(--radius); 
+            padding: 1.5rem; 
+            box-shadow: var(--shadow); 
+            margin-bottom: 1.5rem; 
+        }
+
+        .card-header { 
+            font-weight: 700; 
+            font-size: 1.1rem; 
+            margin-bottom: 1.5rem; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+
+        .table-wrap { overflow-x: auto; border-radius: 8px; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        
+        th { 
+            background: #f8fafc; 
+            color: var(--text-sub); 
+            text-align: left; 
+            padding: 14px 16px; 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td { padding: 16px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+
+        /* Status Components */
+        .progress-box { display: flex; align-items: center; gap: 10px; width: 140px; }
+        .progress-bg { flex-grow: 1; height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); border-radius: 10px; }
+
+        .btn-action { 
+            background: var(--primary); 
+            color: white; 
+            text-decoration: none; 
+            padding: 8px 16px; 
+            border-radius: 8px; 
+            font-size: 0.8rem; 
+            font-weight: 500;
+            transition: 0.3s;
+            display: inline-block;
+        }
+
+        .btn-action:hover { background: var(--primary-dark); transform: scale(1.05); }
+
+        .chart-container { max-width: 350px; margin: 0 auto; padding: 1rem; }
+
+        /* Sidebar Overlay for mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        /* Responsive Mobile Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                height: 100vh;
+            }
+            .sidebar.active { left: 0; }
+            .sidebar-overlay.active { display: block; }
+            .menu-toggle { display: block; }
+            .header h1 { font-size: 1.2rem; }
+        }
+
+        @media (max-width: 640px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+            .header-right span { display: none; }
+            .filter-bar { flex-direction: column; }
+            .select-input { width: 100%; }
+            .content-area { padding: 1rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Mobile Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">VISHWAKARMA</div>
+        
+        <nav class="sidebar-nav">
+            <a href="/supervisor/dashboard" class="active">
+                <i class="fas fa-tachometer-alt"></i> My Dashboard
+            </a>
+            <a href="/supervisor/allSitesPage">
+                <i class="fas fa-building"></i> All Sites
+            </a>
+            <a href="/supervisor/employeesPage">
+                <i class="fas fa-users"></i> Workforce
+            </a>
+            <a href="/supervisor/clientRequirementsPage">
+                <i class="fas fa-clipboard-check"></i> Client Requirements
+            </a>
+            <a href="/supervisor/performancePage">
+                <i class="fas fa-chart-bar"></i> Performance
+            </a>
+            <a href="/supervisor/allGalleryPage">
+                <i class="fas fa-images"></i> Gallery
+            </a>
+            <a href="/supervisor/stockRequestsPage">
+                <i class="fas fa-boxes"></i> Stock Requests
+            </a>
+            <a href="/supervisor/siteDetailsPage">
+                <i class="fas fa-map-marked-alt"></i> Site Details
+            </a>
+            <a href="#" onclick="logout()" style="margin-top: 2rem; color: #ef4444;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Site Engineer</h1>
+            </div>
+            <div class="header-right" style="display: flex; align-items: center; gap: 12px;">
+                <span id="supervisor-name" style="font-weight: 600; color: var(--text-sub);">Welcome, Engineer</span>
+                <img id="supervisor-avatar" src="https://i.pravatar.cc/150?u=engineer" style="width: 42px; height: 42px; border-radius: 12px; border: 2px solid var(--primary-light); object-fit: cover;">
+            </div>
+        </header>
+
+        <section class="content-area">
+            <!-- KPI Grid -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background: var(--primary-light); color: var(--primary);">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div>
+                        <div class="val" id="kpi-ongoing">0</div>
+                        <div class="lab">Assigned Sites</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background: #eff6ff; color: var(--info);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="val" id="kpi-workforce">0</div>
+                        <div class="lab">Workforce Managed</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background: #ecfdf5; color: var(--success);">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div>
+                        <div class="val" id="kpi-avg-completion">0%</div>
+                        <div class="lab">Avg. Progress</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background: #fef2f2; color: var(--danger);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <div class="val" id="kpi-risk">0</div>
+                        <div class="lab">At Risk Sites</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="filter-bar">
+                <input type="text" id="searchBox" class="search-input" placeholder="Search site name or ID...">
+                <select id="riskFilter" class="select-input">
+                    <option value="">All Risk Levels</option>
+                    <option value="On Track">On Track</option>
+                    <option value="Minor Delay">Minor Delay</option>
+                    <option value="At Risk">At Risk</option>
+                </select>
+            </div>
+
+            <!-- Site Table -->
+            <div class="card">
+                <div class="card-header">
+                    <span>Active Site Assignments</span>
+                    <i class="fas fa-ellipsis-h" style="color: var(--text-sub); cursor: pointer;"></i>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Site Details</th>
+                                <th>Timeline</th>
+                                <th>Workforce</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sitesTableBody">
+                            <!-- JS Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div class="card">
+                    <div class="card-header">Site Status Distribution</div>
+                    <div class="chart-container">
+                        <canvas id="riskChart"></canvas>
+                    </div>
+                </div>
+                <!-- You can add more summary widgets here if needed -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let allSites = []; 
+        let riskChartInstance = null;
+
+        // Mobile Menu Logic
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        menuToggle.addEventListener('click', toggleSidebar);
+        overlay.addEventListener('click', toggleSidebar);
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await fetchUserData();
+            await fetchSitesData();
+
+            document.getElementById("searchBox").addEventListener("input", filterAndRender);
+            document.getElementById("riskFilter").addEventListener("change", filterAndRender);
+        });
+
+        async function fetchUserData() {
+            try {
+                const res = await fetch("/auth/me");
+                const user = await res.json();
+                document.getElementById("supervisor-name").textContent = `Welcome, ${user.name}`;
+                if (user.avatar) document.getElementById("supervisor-avatar").src = user.avatar;
+            } catch (e) { console.error("User fetch error"); }
+        }
+
+        async function fetchSitesData() {
+            try {
+                const res = await fetch("/supervisor/ongoingSupervisorSites");
+                allSites = await res.json();
+                
+                calculateKPIs(allSites);
+                filterAndRender();
+            } catch (e) {
+                console.error("Sites fetch error", e);
+                document.getElementById("sitesTableBody").innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 2rem;">Error loading site data.</td></tr>';
+            }
+        }
+
+        function calculateKPIs(data) {
+            const ongoing = data.length;
+            const atRisk = data.filter(s => s.risk === 'At Risk').length;
+            const totalWorkforce = data.reduce((acc, s) => acc + (s.workersCount || 0), 0);
+            const avgComp = data.length ? Math.round(data.reduce((acc, s) => acc + s.completion, 0) / data.length) : 0;
+
+            document.getElementById("kpi-ongoing").textContent = ongoing;
+            document.getElementById("kpi-risk").textContent = atRisk;
+            document.getElementById("kpi-avg-completion").textContent = `${avgComp}%`;
+            document.getElementById("kpi-workforce").textContent = totalWorkforce;
+        }
+
+        function filterAndRender() {
+            const searchVal = document.getElementById("searchBox").value.toLowerCase();
+            const riskVal = document.getElementById("riskFilter").value;
+
+            const filtered = allSites.filter(s => {
+                const matchesSearch = s.siteName.toLowerCase().includes(searchVal) || s.siteId.toLowerCase().includes(searchVal);
+                const matchesStatus = riskVal === "" || s.risk === riskVal;
+                return matchesSearch && matchesStatus;
+            });
+
+            renderTable(filtered);
+            renderChart(filtered);
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById("sitesTableBody");
+            tbody.innerHTML = "";
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 3rem; color: var(--text-sub);">No assigned sites found matching your criteria.</td></tr>';
+                return;
+            }
+
+            data.forEach(s => {
+                const start = s.startDate ? new Date(s.startDate).toLocaleDateString('en-GB') : 'N/A';
+                const end = s.deadline ? new Date(s.deadline).toLocaleDateString('en-GB') : 'N/A';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600;">${s.siteName}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-sub);">${s.siteId}</div>
+                        </td>
+                        <td>
+                            <div style="font-size: 0.8rem">
+                                <div><i class="far fa-calendar-alt" style="width:15px"></i> ${start}</div>
+                                <div style="color: var(--danger); font-weight:500;"><i class="fas fa-clock" style="width:15px"></i> ${end}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span style="background: #f1f5f9; padding: 4px 8px; border-radius: 6px; font-weight: 500;">
+                                <i class="fas fa-user-friends" style="font-size: 0.75rem"></i> ${s.workersCount || 0}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="progress-box">
+                                <div class="progress-bg"><div class="progress-fill" style="width:${s.completion}%"></div></div>
+                                <span style="font-weight:600; font-size: 0.8rem;">${s.completion}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span style="color:${getRiskColor(s.risk)}; font-weight:700; font-size:0.8rem">
+                                <i class="fas fa-circle" style="font-size: 0.5rem; vertical-align: middle; margin-right: 4px;"></i>
+                                ${s.risk}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="/supervisor/sitedetailsPage?siteId=${s.siteId}" class="btn-action">Details</a>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function getRiskColor(risk) {
+            if (risk === 'On Track') return 'var(--success)';
+            if (risk === 'At Risk') return 'var(--danger)';
+            if (risk === 'Minor Delay') return 'var(--warning)';
+            return 'var(--text-sub)';
+        }
+
+        function renderChart(data) {
+            const counts = { "On Track": 0, "Minor Delay": 0, "At Risk": 0 };
+            data.forEach(s => { if(counts[s.risk] !== undefined) counts[s.risk]++; });
+
+            const ctx = document.getElementById('riskChart').getContext('2d');
+            if (riskChartInstance) riskChartInstance.destroy();
+
+            riskChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(counts),
+                    datasets: [{
+                        data: Object.values(counts),
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: { usePointStyle: true, padding: 20, font: { family: 'Poppins' } } 
+                        } 
+                    },
+                    cutout: '75%'
+                }
+            });
+        }
+
+        function logout() {
+            if(confirm("Are you sure you want to logout?")) {
+                fetch("/auth/logout", { method: "POST" }).then(() => window.location.href = "/");
+            }
+        }
+    </script>
+</body>
+
+</html>

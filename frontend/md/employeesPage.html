@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees | Mission Vishwakarma</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /*-------------------------------------------
+         * THEME: ENHANCED TEAL & SLATE (MATCHED)
+        /*-------------------------------------------*/
+        :root {
+            --primary-color: #0d9488; --primary-color-dark: #0f766e; --primary-color-light: #f0fdfa;
+            --sidebar-bg: #1e293b; --sidebar-text: #cbd5e1; --sidebar-text-hover: #ffffff;
+            --background-page: #f1f5f9; --background-card: #ffffff;
+            --text-primary: #0f172a; --text-secondary: #475569; --text-muted: #94a3b8;
+            --border-color: #e2e8f0; --success-color: #22c55e; --danger-color: #ef4444;
+            --warning-color: #f59e0b; --info-color: #3b82f6;
+            --font-family: 'Poppins', sans-serif; --border-radius: 0.75rem;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.05); --transition-speed: 0.3s ease;
+        }
+
+        /* Global Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-family); }
+        body { background-color: var(--background-page); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar (Matched) */
+        .sidebar {
+            width: 260px; background-color: var(--sidebar-bg); color: var(--sidebar-text);
+            display: flex; flex-direction: column; flex-shrink: 0; border-right: 1px solid var(--border-color); height: 100vh;
+        }
+        .sidebar-header { padding: 1.5rem 1.25rem; text-align: center; }
+        .logo-text { font-size: 1.6rem; font-weight: 700; color: var(--sidebar-text-hover); text-decoration: none; }
+        .sidebar-nav { flex-grow: 1; padding: 0 1rem; overflow-y: auto; }
+        .sidebar-nav a { 
+            display: flex; align-items: center; color: var(--sidebar-text); text-decoration: none; 
+            padding: 12px 18px; border-radius: 8px; margin-bottom: 8px; transition: all var(--transition-speed); border-left: 4px solid transparent; 
+        }
+        .sidebar-nav a:hover { background-color: rgba(255, 255, 255, 0.05); color: var(--sidebar-text-hover); border-left-color: var(--primary-color); }
+        .sidebar-nav a.active { background-color: var(--primary-color); color: var(--sidebar-text-hover); font-weight: 600; }
+        .sidebar-nav i { margin-right: 12px; width: 20px; text-align: center; }
+
+        /* Main Area */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .header { 
+            background: var(--background-card); padding: 1.25rem 1.5rem; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid var(--border-color); flex-shrink: 0; 
+        }
+        .header h2 { font-size: 1.4rem; font-weight: 600; }
+        .content-area { padding: 1.5rem; overflow-y: auto; flex-grow: 1; }
+
+        /* Card & Table Styling */
+        .card { background: var(--background-card); border-radius: var(--border-radius); padding: 1.5rem; box-shadow: var(--shadow-md); margin-bottom: 2rem; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .section-header h3 { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); border-left: 4px solid var(--primary-color); padding-left: 10px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        thead th { background-color: var(--background-page); padding: 14px; text-align: left; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); border-bottom: 2px solid var(--border-color); text-transform: uppercase; }
+        tbody tr { border-bottom: 1px solid var(--border-color); transition: 0.2s; }
+        tbody tr:hover { background-color: var(--primary-color-light); }
+        td { padding: 14px; font-size: 0.9rem; color: var(--text-primary); vertical-align: middle; }
+
+        /* Buttons (Matched) */
+        .btn { 
+            padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; 
+            transition: all 0.25s; border: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+        }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--primary-color-dark); transform: translateY(-1px); }
+        .btn-secondary { background: var(--sidebar-bg); color: white; }
+        .btn-secondary:hover { opacity: 0.9; }
+        .btn-info { background: var(--info-color); color: white; }
+        .btn-info:hover { opacity: 0.9; }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .btn-danger { background: var(--danger-color); color: white; }
+
+        /* Status Badges */
+        .status { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: white; }
+        .active-status { background: var(--success-color); }
+        .standBy-status { background: var(--info-color); }
+        .onLeave-status { background: var(--warning-color); }
+
+        /* Modal Styling */
+        .modal { 
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); 
+            display: none; align-items: center; justify-content: center; z-index: 1000; 
+            backdrop-filter: blur(4px);
+        }
+        .modal-content { 
+            background: white; padding: 2rem; width: 450px; border-radius: var(--border-radius); 
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .modal h3 { margin-bottom: 1.5rem; color: var(--text-primary); font-size: 1.25rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        label { display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
+        input, select { 
+            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); 
+            font-size: 0.95rem; outline: none; transition: border-color 0.3s;
+        }
+        input:focus, select:focus { border-color: var(--primary-color); }
+
+        @media (max-width: 768px) { .sidebar { display: none; } }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="logo-text">Vishwakarma</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/md/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="/md/siteDetailsPage"><i class="fas fa-building"></i> Site Details</a>
+            <a href="/md/EmployeesPage" class="active"><i class="fas fa-users-cog"></i> Employees</a>
+            <a href="/md/financialsPage"><i class="fas fa-wallet"></i> Financials</a>
+            <a href="/md/clientRequirementsPage"><i class="fas fa-user-check"></i> Client Requirements</a>
+            <a href="/md/stockRequestsPage"><i class="fas fa-cubes"></i> Stock Requests</a>
+            <a href="/md/allSitesPage"><i class="fas fa-map-marked-alt"></i> All Sites</a>
+            <a href="/md/allGalleryPage"><i class="fas fa-images"></i> Gallery</a>
+            <a href="/md/performancePage"><i class="fas fa-chart-pie"></i> Performance</a>
+            <a href="/md/tasksPage"><i class="fas fa-tasks"></i> Tasks</a>
+            <a href="#" onclick="logout()" style="margin-top: 20px; color: var(--danger-color);"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <header class="header">
+            <h2>Workforce Management</h2>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="openEmployee()"><i class="fas fa-plus"></i> Add Employee</button>
+                <button class="btn btn-secondary" onclick="openSupervisor()"><i class="fas fa-user-shield"></i> Add Supervisor</button>
+                <button class="btn btn-info" onclick="openProcurement()"><i class="fas fa-truck-loading"></i> Add Procurement Manager</button>
+            </div>
+        </header>
+
+        <main class="content-area">
+            
+            <!-- PROCUREMENT MANAGERS TABLE -->
+            <div class="card">
+                <div class="section-header">
+                    <h3>Procurement Managers</h3>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="procurementTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SUPERVISORS TABLE -->
+            <div class="card">
+                <div class="section-header">
+                    <h3>Site Supervisors</h3>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Assigned Sites</th><th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supervisorTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- EMPLOYEES TABLE -->
+            <div class="card">
+                <div class="section-header">
+                    <h3>General Employees</h3>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th><th>Name</th><th>Role</th><th>Phone Number</th><th>Status</th><th>Assigned Site</th><th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODALS (Employee, Supervisor, Procurement) -->
+    <!-- [Employee Modal - Same as before] -->
+    <div class="modal" id="employeeModal">
+        <div class="modal-content">
+            <h3 id="empTitle">Add Employee</h3>
+            <form id="employeeForm">
+                <input type="hidden" id="employeeId">
+                <div class="form-group"><label>Full Name</label><input id="employeeName" required></div>
+                <div class="form-group"><label>Role / Designation</label><input id="empRole" placeholder="e.g. Mason" required></div>
+                <div class="form-group"><label>Phone Number</label><input id="empPhone"></div>
+                <div class="form-group">
+                    <label>Current Status</label>
+                    <select id="empStatus">
+                        <option value="active">Active</option>
+                        <option value="standBy">Stand By</option>
+                        <option value="onLeave">On Leave</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Assign to Site</label><select id="empSite"></select></div>
+                <div style="margin-top: 2rem; display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeEmployee()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- [Supervisor Modal - Same as before] -->
+    <div class="modal" id="supervisorModal">
+        <div class="modal-content">
+            <h3 id="supTitle">Add Supervisor</h3>
+            <form id="supervisorForm">
+                <input type="hidden" id="supervisorId">
+                <div class="form-group"><label>Username</label><input name="username" required></div>
+                <div class="form-group"><label>Email</label><input name="userEmail" type="email"></div>
+                <div class="form-group"><label>Phone</label><input name="phoneNumber"></div>
+                <div class="pwd-note" style="font-size:0.7rem; color:var(--primary-color)">Default Pwd: 12345678</div>
+                <div style="margin-top: 2rem; display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeSupervisor()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PROCUREMENT MANAGER MODAL (New) -->
+    <div class="modal" id="procurementModal">
+        <div class="modal-content">
+            <h3 id="procTitle">Add Procurement Manager</h3>
+            <form id="procurementForm">
+                <input type="hidden" id="procurementId">
+                <div class="form-group"><label>Full Name</label><input name="username" required></div>
+                <div class="form-group"><label>Email Address</label><input name="userEmail" type="email"></div>
+                <div class="form-group"><label>Phone Number</label><input name="phoneNumber"></div>
+                <div style="background: var(--primary-color-light); padding: 10px; border-radius: 6px; font-size: 0.75rem; color: var(--primary-color-dark);">
+                    <i class="fas fa-info-circle"></i> This user will have access to Stock and Inventory.
+                </div>
+                <div style="margin-top: 2rem; display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeProcurement()">Cancel</button>
+                    <button type="submit" class="btn btn-info">Save Manager</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API = {
+            employees: "/md/employees",
+            supervisors: "/md/supervisors",
+            procurement: "/md/procurementManagers", // New Endpoint
+            sites: "/md/sites"
+        };
+
+        let editEmp = false, editSup = false, editProc = false;
+
+        function genId(prefix) { return prefix + "-" + Math.floor(1000 + Math.random() * 9000); }
+
+        // --- PROCUREMENT MANAGERS LOGIC ---
+        async function loadProcurement() {
+            try {
+                const d = await fetch(API.procurement).then(r => r.json());
+                const tbody = document.getElementById("procurementTable");
+                tbody.innerHTML = d.map(p => `
+                    <tr>
+                        <td style="font-weight:600; color:var(--text-muted)">${p.userId}</td>
+                        <td style="font-weight:600">${p.username}</td>
+                        <td>${p.userEmail || "-"}</td>
+                        <td>${p.phoneNumber || "-"}</td>
+                        <td>
+                            <div style="display:flex; gap:8px">
+                                <button class="btn btn-sm btn-primary" onclick='editProcurement(${JSON.stringify(p)})'>Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick='deleteProcurement("${p.userId}")'><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    </tr>`).join("");
+            } catch (e) { console.error(e); }
+        }
+
+        function openProcurement() {
+            editProc = false;
+            document.getElementById("procTitle").innerText = "Add Procurement Manager";
+            document.getElementById("procurementForm").reset();
+            document.getElementById("procurementId").value = genId("PM");
+            document.getElementById("procurementModal").style.display = "flex";
+        }
+
+        function editProcurement(p) {
+            editProc = true;
+            document.getElementById("procTitle").innerText = "Edit Procurement Manager";
+            document.getElementById("procurementId").value = p.userId;
+            const f = document.getElementById("procurementForm");
+            f.username.value = p.username;
+            f.userEmail.value = p.userEmail || "";
+            f.phoneNumber.value = p.phoneNumber || "";
+            document.getElementById("procurementModal").style.display = "flex";
+        }
+
+        function closeProcurement() { document.getElementById("procurementModal").style.display = "none"; }
+
+        document.getElementById("procurementForm").onsubmit = async e => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            data.userId = document.getElementById("procurementId").value;
+            if(!editProc) data.password = "12345678"; // Default password
+            
+            await fetch(editProc ? `${API.procurement}/${data.userId}` : API.procurement, {
+                method: editProc ? "PUT" : "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            closeProcurement(); loadProcurement();
+        };
+
+        function deleteProcurement(id) {
+            if (confirm("Delete this Procurement Manager account?")) {
+                fetch(`${API.procurement}/${id}`, { method: "DELETE" }).then(loadProcurement);
+            }
+        }
+
+        // --- SUPERVISORS LOGIC ---
+        async function loadSupervisors() {
+            try {
+                const d = await fetch(API.supervisors).then(r => r.json());
+                const tbody = document.getElementById("supervisorTable");
+                tbody.innerHTML = d.map(s => {
+                    const siteList = typeof s.assignedSites === 'string' ? JSON.parse(s.assignedSites) : (s.assignedSites || []);
+                    const sitesDisp = siteList.length ? `${siteList.length} Site(s)` : "None";
+                    return `
+                    <tr>
+                        <td>${s.userId}</td>
+                        <td style="font-weight:600">${s.username}</td>
+                        <td>${s.userEmail || "-"}</td>
+                        <td>${s.phoneNumber || "-"}</td>
+                        <td><small>${sitesDisp}</small></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick='editSupervisor(${JSON.stringify(s)})'>Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick='deleteSupervisor("${s.userId}")'>Delete</button>
+                        </td>
+                    </tr>`;
+                }).join("");
+            } catch (e) { console.error(e); }
+        }
+
+        function openSupervisor() {
+            editSup = false;
+            document.getElementById("supervisorForm").reset();
+            document.getElementById("supervisorId").value = genId("SUP");
+            document.getElementById("supervisorModal").style.display = "flex";
+        }
+
+        function editSupervisor(s) {
+            editSup = true;
+            document.getElementById("supervisorId").value = s.userId;
+            const f = document.getElementById("supervisorForm");
+            f.username.value = s.username;
+            f.userEmail.value = s.userEmail || "";
+            f.phoneNumber.value = s.phoneNumber || "";
+            document.getElementById("supervisorModal").style.display = "flex";
+        }
+
+        function closeSupervisor() { document.getElementById("supervisorModal").style.display = "none"; }
+
+        document.getElementById("supervisorForm").onsubmit = async e => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            data.userId = document.getElementById("supervisorId").value;
+            if(!editSup) data.password = "12345678";
+            await fetch(editSup ? `${API.supervisors}/${data.userId}` : API.supervisors, {
+                method: editSup ? "PUT" : "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            closeSupervisor(); loadSupervisors();
+        };
+
+        function deleteSupervisor(id) {
+            if (confirm("Delete Supervisor?")) fetch(`${API.supervisors}/${id}`, { method: "DELETE" }).then(loadSupervisors);
+        }
+
+        // --- EMPLOYEES LOGIC ---
+        async function loadEmployees() {
+            try {
+                const d = await fetch(API.employees).then(r => r.json());
+                const tbody = document.getElementById("employeeTable");
+                tbody.innerHTML = d.map(e => `
+                    <tr>
+                        <td>${e.employeeId}</td>
+                        <td style="font-weight:600">${e.employeeName}</td>
+                        <td>${e.role}</td>
+                        <td>${e.phoneNumber || "-"}</td>
+                        <td><span class="status ${e.status}-status">${e.status}</span></td>
+                        <td>${e.siteName || "Unassigned"}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick='editEmployee(${JSON.stringify(e)})'>Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick='deleteEmployee("${e.employeeId}")'>Delete</button>
+                        </td>
+                    </tr>`).join("");
+            } catch (e) { console.error(e); }
+        }
+
+        function openEmployee() {
+            editEmp = false;
+            document.getElementById("employeeForm").reset();
+            document.getElementById("employeeId").value = genId("EMP");
+            document.getElementById("employeeModal").style.display = "flex";
+        }
+
+        function editEmployee(e) {
+            editEmp = true;
+            document.getElementById("employeeId").value = e.employeeId;
+            document.getElementById("employeeName").value = e.employeeName;
+            document.getElementById("empRole").value = e.role;
+            document.getElementById("empPhone").value = e.phoneNumber || "";
+            document.getElementById("empStatus").value = e.status;
+            document.getElementById("empSite").value = e.assignedSiteId || "";
+            document.getElementById("employeeModal").style.display = "flex";
+        }
+
+        function closeEmployee() { document.getElementById("employeeModal").style.display = "none"; }
+
+        document.getElementById("employeeForm").onsubmit = async e => {
+            e.preventDefault();
+            const payload = {
+                employeeId: document.getElementById("employeeId").value,
+                employeeName: document.getElementById("employeeName").value,
+                role: document.getElementById("empRole").value,
+                phoneNumber: document.getElementById("empPhone").value,
+                status: document.getElementById("empStatus").value,
+                assignedSiteId: document.getElementById("empSite").value || null
+            };
+            await fetch(editEmp ? `${API.employees}/${payload.employeeId}` : API.employees, {
+                method: editEmp ? "PUT" : "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            closeEmployee(); loadEmployees();
+        };
+
+        function deleteEmployee(id) {
+            if (confirm("Delete Employee?")) fetch(`${API.employees}/${id}`, { method: "DELETE" }).then(loadEmployees);
+        }
+
+        async function loadSites() {
+            const d = await fetch(API.sites).then(r => r.json());
+            const sel = document.getElementById("empSite");
+            sel.innerHTML = '<option value="">Unassigned</option>' + d.map(s => `<option value="${s.siteId}">${s.siteName}</option>`).join("");
+        }
+
+        function logout() { fetch("/auth/logout", { method: "POST" }).then(() => location.href = "/"); }
+
+        // Initial Load
+        loadEmployees(); loadSupervisors(); loadProcurement(); loadSites();
+    </script>
+</body>
+</html>

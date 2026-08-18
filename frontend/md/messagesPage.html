@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Vishwakarma - Messages</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /*-------------------------------------------
+         * THEME: ENHANCED TEAL & SLATE
+        /*-------------------------------------------*/
+        :root {
+            --primary-color: #0d9488;
+            --primary-color-dark: #0f766e;
+            --primary-color-light: #f0fdfa;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #cbd5e1;
+            --sidebar-text-hover: #ffffff;
+            --background-page: #f1f5f9;
+            --background-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --font-family: 'Poppins', sans-serif;
+            --spacing-unit: 1.5rem;
+            --border-radius: 0.75rem;
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --transition-speed: 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            background-color: var(--background-page);
+            color: var(--text-primary);
+            display: flex;
+            overflow: hidden;
+        }
+
+        #app-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem var(--spacing-unit);
+            background: var(--background-card);
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 500;
+        }
+
+        .user-profile img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+        }
+
+        .content-area {
+            padding: var(--spacing-unit);
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: var(--spacing-unit) 1.25rem;
+            margin-bottom: 1rem;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 50px;
+            margin-bottom: 5px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .logo-text {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--sidebar-text-hover);
+        }
+
+        .sidebar-nav {
+            flex-grow: 1;
+            padding: 0 1rem;
+            overflow-y: auto;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all var(--transition-speed);
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--sidebar-text-hover);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar-nav a.active {
+            background-color: var(--primary-color);
+            color: var(--sidebar-text-hover);
+            font-weight: 600;
+        }
+
+        .sidebar-nav a i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .card {
+            background-color: var(--background-card);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 25px;
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .inbox-message {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            background: var(--background-page);
+            margin-bottom: 10px;
+        }
+
+        .inbox-message.unread {
+            background-color: var(--primary-color-light);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .inbox-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .inbox-header .sender {
+            font-weight: 600;
+        }
+
+        .inbox-header .timestamp {
+            color: var(--text-muted);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app-wrapper">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="logo">
+                    <img src="SiPSConstruction Logo.jpg" alt="Logo">
+                    <span class="logo-text">Vishwakarma</span>
+                </a>
+            </div>
+               <nav class="sidebar-nav">
+                <a href="/md/dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="/md/siteDetailsPage"><i class="fas fa-building"></i> Site Details</a>
+                <a href="/md/EmployeesPage"><i class="fas fa-users"></i> Employees</a>
+                <a href="/md/MessagesPage"><i class="fas fa-paper-plane"></i> Messages</a>
+                <a href="/" onclick="logout()" style="margin-top: auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <header class="header">
+                <h1>Messages & Tasks</h1>
+                <div class="header-controls">
+                    <div class="user-profile"><span>Welcome, Mr. Sharma</span><img
+                            src="https://i.pravatar.cc/150?img=11" alt="MD"></div>
+                </div>
+            </header>
+
+            <main class="content-area">
+                <div class="card">
+                    <div class="card-header"><span><i class="fas fa-inbox"></i> Inbox</span></div>
+                    <div id="inbox-container">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span><i class="fas fa-bullhorn"></i> Send Message / Assign Task</span>
+                    </div>
+                    <form onsubmit="event.preventDefault(); alert('Message Sent!');">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Select Engineer</label>
+                            <select
+                                style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                                <option>R. Verma (Greenwood Heights)</option>
+                                <option>S. Khan (Oceanview Residence)</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 500;">Message / Task</label>
+                            <textarea rows="4" placeholder="Type your message here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn">Send</button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+   <script>
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        /* ===============================
+           CONFIG
+        =============================== */
+        const API = {
+            authMe: "/auth/me",
+            branding: "/company/branding",
+            inbox: "/md/messages",
+            engineers: "/md/engineers",
+            sendMessage: "/md/messages",
+            logout: "/auth/logout"
+        };
+
+        /* ===============================
+           AUTH USER
+        =============================== */
+        const user = await (await fetch(API.authMe)).json();
+        document.querySelector(".user-profile span").textContent =
+            `Welcome, ${user.name}`;
+        document.querySelector(".user-profile img").src =
+            user.avatar || "https://i.pravatar.cc/150";
+
+        /* ===============================
+           COMPANY BRANDING
+        =============================== */
+        const brand = await (await fetch(API.branding)).json();
+        document.querySelector(".logo-text").textContent = brand.companyName;
+        document.querySelector(".logo img").src = brand.logoUrl;
+
+        /* ===============================
+           ROLE-BASED SIDEBAR
+        =============================== */
+        const nav = document.querySelector(".sidebar-nav");
+        nav.innerHTML = "";
+
+        const menuByRole = {
+            md: [
+                { href: "dashboard", icon: "fa-tachometer-alt", label: "Dashboard" },
+                { href: "site-details", icon: "fa-building", label: "Site Details" },
+                { href: "employees", icon: "fa-users", label: "Employees" },
+                { href: "messages", icon: "fa-paper-plane", label: "Messages" }
+            ]
+        };
+
+        menuByRole[user.role].forEach(item => {
+            const a = document.createElement("a");
+            a.href = item.href;
+            a.innerHTML = `<i class="fas ${item.icon}"></i> ${item.label}`;
+            if (location.pathname.includes(item.href)) a.classList.add("active");
+            nav.appendChild(a);
+        });
+
+        const logoutBtn = document.createElement("a");
+        logoutBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> Logout`;
+        logoutBtn.style.marginTop = "auto";
+        logoutBtn.onclick = logout;
+        nav.appendChild(logoutBtn);
+
+        /* ===============================
+           LOAD ENGINEERS (DROPDOWN)
+        =============================== */
+        const engineerSelect = document.querySelector("form select");
+        engineerSelect.innerHTML = `<option value="">Select Engineer</option>`;
+
+        const engineers = await (await fetch(API.engineers)).json();
+        engineers.forEach(e => {
+            engineerSelect.innerHTML += `
+                <option value="${e.id}">
+                    ${e.name} (${e.siteName || "Unassigned"})
+                </option>
+            `;
+        });
+
+        /* ===============================
+           LOAD INBOX MESSAGES
+        =============================== */
+        async function loadMessages() {
+            const messages = await (await fetch(API.inbox)).json();
+            const inbox = document.getElementById("inbox-container");
+            inbox.innerHTML = "";
+
+            if (!messages.length) {
+                inbox.innerHTML = "<p>No messages found.</p>";
+                return;
+            }
+
+            messages.forEach(msg => {
+                inbox.innerHTML += `
+                    <div class="inbox-message ${msg.isRead ? "" : "unread"}">
+                        <div class="inbox-header">
+                            <span class="sender">
+                                <i class="fas fa-user-tie"></i>
+                                ${msg.senderName} (@ ${msg.siteName || "HQ"})
+                            </span>
+                            <span class="timestamp">
+                                ${new Date(msg.createdAt).toLocaleString()}
+                            </span>
+                        </div>
+                        <p>${msg.content}</p>
+                    </div>
+                `;
+            });
+        }
+
+        await loadMessages();
+
+        /* ===============================
+           SEND MESSAGE / TASK
+        =============================== */
+        document.querySelector("form").addEventListener("submit", async e => {
+            e.preventDefault();
+
+            const engineerId = engineerSelect.value;
+            const content = e.target.querySelector("textarea").value.trim();
+
+            if (!engineerId || !content) {
+                alert("Please select an engineer and enter a message.");
+                return;
+            }
+
+            await fetch(API.sendMessage, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    receiverId: engineerId,
+                    content
+                })
+            });
+
+            e.target.reset();
+            await loadMessages();
+        });
+
+    } catch (err) {
+        console.error("Messages Page Error:", err);
+    }
+});
+
+/* ===============================
+   LOGOUT
+=============================== */
+function logout() {
+    fetch("/auth/logout", { method: "POST" })
+        .then(() => window.location.href = "/login");
+}
+</script>
+
+</body>
+
+</html>

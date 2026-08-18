@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Vishwakarma ERP | company Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #0d9488;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #dc2626;
+            --success: #16a34a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            padding: 2rem;
+        }
+
+        /* ================= HEADER ================= */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .add-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* ================= CARD ================= */
+        .card {
+            background: var(--card);
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8fafc;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        th {
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .status {
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-btn {
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-right: 0.3rem;
+        }
+
+        .edit {
+            background: #16a34a;
+            color: white;
+        }
+
+        .delete {
+            background: #dc2626;
+            color: white;
+        }
+
+        /* ================= MODAL ================= */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-box {
+            background: white;
+            width: 90%;
+            max-width: 420px;
+            border-radius: 14px;
+            padding: 1.8rem;
+            animation: fadeUp 0.3s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-box h2 {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .modal-box input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .cancel-btn {
+            background: #e5e7eb;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 8px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .save-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 8px;
+            width: 100%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+    <div class="header">
+        <h1>company Management</h1>
+        <button class="add-btn" id="openModalBtn">+ Add company</button>
+        <a href="/" class="btn">Logout</a>
+    </div>
+<!-- ================= FILTER BAR ================= -->
+<div style="display:flex; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap;">
+    <input 
+        type="text" 
+        id="searchInput" 
+        placeholder="Search company ID or name..."
+        style="padding:0.7rem 1rem; border-radius:8px; border:1px solid var(--border); min-width:240px;"
+    >
+
+    <select 
+        id="statusFilter"
+        style="padding:0.7rem 1rem; border-radius:8px; border:1px solid var(--border);">
+        <option value="all">All Status</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+    </select>
+</div>
+
+    <!-- ================= TABLE ================= -->
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>company ID</th>
+                    <th>company Name</th>
+                    <th>Status</th>
+                    <th>Subscription Expiry</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="companyTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- ================= MODAL ================= -->
+    <div class="modal" id="companyModal">
+        <div class="modal-box">
+            <h2>Add company</h2>
+            <input type="text" id="companyNameInput" placeholder="company Name">
+            <div class="modal-actions">
+                <button class="cancel-btn" id="closeModalBtn">Cancel</button>
+                <button class="save-btn" id="savecompanyBtn">Save</button>
+            </div>
+        </div>
+    </div>
+<script>
+    const modal = document.getElementById("companyModal");
+    const openModalBtn = document.getElementById("openModalBtn");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const savecompanyBtn = document.getElementById("savecompanyBtn");
+    const companyNameInput = document.getElementById("companyNameInput");
+    const tableBody = document.getElementById("companyTableBody");
+
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+
+    let allCompanies = [];
+
+    openModalBtn.onclick = () => modal.style.display = "flex";
+    closeModalBtn.onclick = () => modal.style.display = "none";
+
+    /* ===============================
+       AUTH SAFE FETCH
+    =============================== */
+    async function authFetch(url, options = {}) {
+        const res = await fetch(url, options);
+        const data = await res.json();
+
+        if (res.status === 401) {
+            alert(data.error || "Not authenticated");
+            window.location.href = data.redirect || "/";
+            throw new Error("Not authenticated");
+        }
+        return data;
+    }
+
+    /* ===============================
+       LOAD COMPANIES
+    =============================== */
+    async function loadCompanies() {
+        try {
+            allCompanies = await authFetch("/admin/AllCompanies");
+            renderCompanies(allCompanies);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    /* ===============================
+       RENDER TABLE
+    =============================== */
+    function renderCompanies(data) {
+        tableBody.innerHTML = "";
+
+        data.forEach(c => {
+            const status = c.status || "Active";
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${c.companyId}</td>
+                <td>${c.companyName}</td>
+                <td>
+                    <span class="status ${status === 'Active' ? 'active' : 'inactive'}">
+                        ${status}
+                    </span>
+                </td>
+                <td>${c.subscriptionEndDate || '-'}</td>
+                <td>
+                    <button class="action-btn edit" onclick="editcompany('${c.companyId}')">Edit</button>
+                    <button class="action-btn delete" onclick="deletecompany('${c.companyId}')">Delete</button>
+                </td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    }
+
+    /* ===============================
+       SEARCH + FILTER
+    =============================== */
+    function applyFilters() {
+        const q = searchInput.value.toLowerCase();
+        const status = statusFilter.value;
+
+        const filtered = allCompanies.filter(c => {
+            const matchesSearch =
+                c.companyId.toLowerCase().includes(q) ||
+                c.companyName.toLowerCase().includes(q);
+
+            const matchesStatus =
+                status === "all" || (c.status || "Active") === status;
+
+            return matchesSearch && matchesStatus;
+        });
+
+        renderCompanies(filtered);
+    }
+
+    searchInput.addEventListener("input", applyFilters);
+    statusFilter.addEventListener("change", applyFilters);
+
+    /* ===============================
+       ACTIONS
+    =============================== */
+    function editcompany(id) {
+        window.location.href = `/admin/AdminEditCompany?companyId=${id}`;
+    }
+
+    async function deletecompany(id) {
+        if (!confirm("Delete this company?")) return;
+
+        try {
+            await authFetch(`/admin/AdminDeleteCompany?companyId=${id}`, {
+                method: "DELETE"
+            });
+            loadCompanies();
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    savecompanyBtn.onclick = async () => {
+        const name = companyNameInput.value.trim();
+        if (!name) return alert("Enter company name");
+
+        try {
+            await authFetch("/admin/AdminAddCompany", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ companyName: name })
+            });
+
+            modal.style.display = "none";
+            companyNameInput.value = "";
+            loadCompanies();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    loadCompanies();
+</script>
+
+</body>
+
+</html>

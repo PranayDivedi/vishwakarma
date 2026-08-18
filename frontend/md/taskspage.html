@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Master Control | Vishwakarma ERP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #0d9488; --primary-color-dark: #0f766e; --primary-color-light: #f0fdfa;
+            --sidebar-bg: #1e293b; --sidebar-text: #cbd5e1; --sidebar-text-hover: #ffffff;
+            --background-page: #f1f5f9; --background-card: #ffffff;
+            --text-primary: #0f172a; --text-secondary: #475569; --text-muted: #94a3b8;
+            --border-color: #e2e8f0; --success-color: #22c55e; --danger-color: #ef4444;
+            --warning-color: #f59e0b; --info-color: #3b82f6;
+            --font-family: 'Poppins', sans-serif; --border-radius: 0.75rem;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.05); --transition-speed: 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-family); }
+        body { background-color: var(--background-page); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            width: 260px; background-color: var(--sidebar-bg); color: var(--sidebar-text);
+            display: flex; flex-direction: column; flex-shrink: 0; border-right: 1px solid var(--border-color); 
+            height: 100vh; transition: transform var(--transition-speed); z-index: 1000;
+        }
+        .sidebar-header { padding: 1.5rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo-text { font-size: 1.5rem; font-weight: 700; color: white; text-decoration: none; }
+        .sidebar-nav { flex-grow: 1; padding: 1rem; overflow-y: auto; }
+        .sidebar-nav a { 
+            display: flex; align-items: center; color: var(--sidebar-text); text-decoration: none; 
+            padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; transition: 0.3s; border-left: 4px solid transparent; 
+        }
+        .sidebar-nav a:hover { background-color: rgba(255, 255, 255, 0.05); color: white; border-left-color: var(--primary-color); }
+        .sidebar-nav a.active { background-color: var(--primary-color); color: white; font-weight: 600; }
+        .sidebar-nav i { width: 25px; margin-right: 10px; text-align: center; }
+
+        /* --- Main Layout --- */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; width: 100%; }
+        .header { 
+            background: var(--background-card); padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color); 
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; 
+        }
+        .header h1 { font-size: 1.3rem; font-weight: 600; }
+
+        .menu-btn { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary-color); }
+        .content-area { padding: 1.25rem; overflow-y: auto; flex-grow: 1; }
+
+        /* --- KPI Grid --- */
+        .overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .overview-card { 
+            background: var(--background-card); padding: 1.25rem; border-radius: var(--border-radius); 
+            box-shadow: var(--shadow-md); border-left: 5px solid; display: flex; align-items: center; gap: 1rem; 
+        }
+        .overview-card .icon { font-size: 2rem; }
+        .overview-card .value { font-size: 1.5rem; font-weight: 700; }
+        .overview-card .label { font-size: 0.8rem; color: var(--text-secondary); }
+
+        /* --- Filters --- */
+        .filter-bar { 
+            background: var(--background-card); padding: 1rem; border-radius: var(--border-radius); 
+            display: flex; gap: 0.8rem; margin-bottom: 1.5rem; align-items: center; box-shadow: var(--shadow-md);
+            flex-wrap: wrap;
+        }
+        .form-control { 
+            padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; 
+            outline: none; font-size: 0.9rem; background: white; flex-grow: 1; min-width: 150px;
+        }
+        .form-control:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px var(--primary-color-light); }
+
+        /* --- Table View --- */
+        .card { background: var(--background-card); border-radius: var(--border-radius); padding: 1rem; box-shadow: var(--shadow-md); border: 1px solid var(--border-color); }
+        .table-container { overflow-x: auto; width: 100%; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        thead th { background-color: var(--background-page); padding: 14px; text-align: left; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; border-bottom: 2px solid var(--border-color); }
+        tbody tr { border-bottom: 1px solid var(--border-color); transition: 0.2s; }
+        tbody tr:hover { background-color: var(--primary-color-light); }
+        td { padding: 14px; font-size: 0.9rem; vertical-align: middle; }
+
+        /* --- Buttons --- */
+        .btn { 
+            padding: 10px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; 
+            transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 0.85rem; 
+        }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-primary:hover { background: var(--primary-color-dark); transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+        .btn-edit { color: var(--info-color); border: 1px solid var(--info-color); background: transparent; padding: 6px 10px; }
+        .btn-edit:hover { background: var(--info-color); color: white; }
+        .btn-delete { color: var(--danger-color); border: 1px solid var(--danger-color); background: transparent; padding: 6px 10px; }
+        .btn-delete:hover { background: var(--danger-color); color: white; }
+
+        /* --- Enhanced Modal Styling --- */
+        .modal-overlay { 
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); 
+            display: none; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px); padding: 15px;
+        }
+        .modal-content { 
+            background: white; width: 100%; max-width: 550px; border-radius: 1rem; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: slideUp 0.3s ease-out; overflow: hidden;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .modal-header { background: var(--primary-color); padding: 1.5rem; color: white; display: flex; align-items: center; gap: 12px; }
+        .modal-header i { font-size: 1.5rem; }
+        .modal-header h3 { font-weight: 600; font-size: 1.2rem; margin: 0; }
+
+        .modal-body { padding: 1.5rem; }
+        .form-row { display: flex; gap: 1rem; margin-bottom: 1.2rem; }
+        .form-group { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+        .form-group label i { color: var(--primary-color); font-size: 0.9rem; }
+        
+        .modal-body select, .modal-body input, .modal-body textarea {
+            padding: 12px; border: 1.5px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; transition: 0.3s;
+        }
+        .modal-footer { background: #f8fafc; padding: 1.2rem 1.5rem; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border-color); }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="logo-text">Vishwakarma</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/md/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="/md/siteDetailsPage"><i class="fas fa-building"></i> Site Details</a>
+            <a href="/md/EmployeesPage"><i class="fas fa-users-cog"></i> Employees</a>
+            <a href="/md/financialsPage"><i class="fas fa-wallet"></i> Financials</a>
+            <a href="/md/clientRequirementsPage"><i class="fas fa-user-check"></i> Client Requirements</a>
+            <a href="/md/stockRequestsPage"><i class="fas fa-cubes"></i> Stock Requests</a>
+            <a href="/md/allSitesPage" class="active"><i class="fas fa-map-marked-alt"></i> All Sites</a>
+            <a href="/md/allGalleryPage"><i class="fas fa-images"></i> Gallery</a>
+            <a href="/md/performancePage"><i class="fas fa-chart-pie"></i> Performance</a>
+            <a href="/md/tasksPage"><i class="fas fa-tasks"></i> Tasks</a>
+            <a href="#" onclick="logout()" style="margin-top: 20px; color: var(--danger-color);"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <div class="main-content">
+        <header class="header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></button>
+                <h1>Task Control Hub</h1>
+            </div>
+            <button class="btn btn-primary" onclick="openAddTaskModal()"><i class="fas fa-plus"></i> Assign New Task</button>
+        </header>
+
+        <main class="content-area">
+            <!-- KPI OVERVIEW -->
+            <div class="overview-grid">
+                <div class="overview-card" style="border-left-color: var(--primary-color);">
+                    <i class="fas fa-list-check icon" style="color: var(--primary-color);"></i>
+                    <div><div class="value" id="count-total">0</div><div class="label">Total Tasks</div></div>
+                </div>
+                <div class="overview-card" style="border-left-color: var(--warning-color);">
+                    <i class="fas fa-clock icon" style="color: var(--warning-color);"></i>
+                    <div><div class="value" id="count-pending">0</div><div class="label">Pending/Ongoing</div></div>
+                </div>
+                <div class="overview-card" style="border-left-color: var(--success-color);">
+                    <i class="fas fa-circle-check icon" style="color: var(--success-color);"></i>
+                    <div><div class="value" id="count-completed">0</div><div class="label">Completed</div></div>
+                </div>
+            </div>
+
+            <!-- FILTERS -->
+            <div class="filter-bar">
+                <input type="text" id="searchTask" class="form-control" placeholder="Search tasks..." oninput="filterTasks()">
+                <select id="filterSite" class="form-control" onchange="filterTasks()">
+                    <option value="">All Project Sites</option>
+                </select>
+            </div>
+
+            <!-- TASK TABLE -->
+            <div class="card">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Project Site</th>
+                                <th>Task Description</th>
+                                <th>Supervisor</th>
+                                <th>Deadline</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- TASK MODAL (Used for Add & Edit) -->
+    <div id="taskModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader">
+                <i class="fas fa-clipboard-list"></i>
+                <h3 id="modalTitle">Assign New Project Task</h3>
+            </div>
+            <form id="taskForm">
+                <!-- Hidden input to store task ID during editing -->
+                <input type="hidden" id="modalTaskId">
+                
+                <div class="modal-body">
+                    <div class="form-row" id="siteSelectRow">
+                        <div class="form-group">
+                            <label><i class="fas fa-building"></i> Project Site</label>
+                            <select id="modalSite" required></select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user-tie"></i> Supervisor</label>
+                            <select id="modalSupervisor" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> Deadline</label>
+                            <input type="date" id="modalDeadline" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1.2rem;">
+                        <label><i class="fas fa-align-left"></i> Description</label>
+                        <textarea id="modalDesc" class="form-control" style="width: 100%; height: 80px;" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-info-circle"></i> Status</label>
+                        <select id="modalStatus" class="form-control">
+                            <option value="Pending">Pending</option>
+                            <option value="Ongoing">Ongoing</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeTaskModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="modalSubmitBtn">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let allTasks = []; let sites = []; let supervisors = [];
+
+        document.addEventListener("DOMContentLoaded", initData);
+
+        async function initData() {
+            try {
+                const [sitesRes, supRes, tasksRes] = await Promise.all([
+                    fetch('/md/showSites').then(r => r.json()),
+                    fetch('/md/supervisors').then(r => r.json()),
+                    fetch('/md/allTasks').then(r => r.json())
+                ]);
+                sites = sitesRes; supervisors = supRes; allTasks = tasksRes;
+                populateDropdowns();
+                renderUI(allTasks);
+            } catch (err) { console.error("Data Load Error", err); }
+        }
+
+        function populateDropdowns() {
+            const fSite = document.getElementById('filterSite');
+            const mSite = document.getElementById('modalSite');
+            const mSup = document.getElementById('modalSupervisor');
+            
+            fSite.innerHTML = '<option value="">All Project Sites</option>';
+            mSite.innerHTML = ''; 
+            mSup.innerHTML = '';
+
+            sites.forEach(s => {
+                const opt = `<option value="${s.siteId}">${s.siteName}</option>`;
+                fSite.innerHTML += opt; mSite.innerHTML += opt;
+            });
+            supervisors.forEach(u => { 
+                mSup.innerHTML += `<option value="${u.userId}">${u.username}</option>`; 
+            });
+        }
+
+        function renderUI(data) {
+            const tbody = document.getElementById('taskTableBody');
+            tbody.innerHTML = data.length ? "" : '<tr><td colspan="6" style="text-align:center;">No tasks found.</td></tr>';
+            
+            data.forEach(t => {
+                const deadlineDate = new Date(t.deadline).toLocaleDateString('en-IN');
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${t.siteName}</strong><br><span><small>${t.siteId}</small></span></td>
+                        <td>${t.description}</td>
+                        <td>${t.assignedTo}</td>
+                        <td>${deadlineDate}</td>
+                        <td><span class="badge">${t.status}</span></td>
+                        <td style="text-align: right;">
+                            <button class="btn btn-edit" onclick='openEditModal(${JSON.stringify(t)})'><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-delete" onclick="deleteTask(${t.taskId})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+            updateKPIs(data);
+        }
+
+        function updateKPIs(data) {
+            document.getElementById('count-total').innerText = data.length;
+            document.getElementById('count-pending').innerText = data.filter(t => t.status !== 'Completed').length;
+            document.getElementById('count-completed').innerText = data.filter(t => t.status === 'Completed').length;
+        }
+
+        // MODAL LOGIC
+        function openAddTaskModal() {
+            document.getElementById('taskForm').reset();
+            document.getElementById('modalTaskId').value = "";
+            document.getElementById('modalTitle').innerText = "Assign New Project Task";
+            document.getElementById('siteSelectRow').style.display = "block";
+            document.getElementById('taskModal').style.display = 'flex';
+        }
+
+        function openEditModal(task) {
+            document.getElementById('modalTaskId').value = task.taskId;
+            document.getElementById('modalTitle').innerText = "Update Task Details";
+            
+            // Pre-fill fields
+            document.getElementById('modalSite').value = task.siteId;
+            document.getElementById('siteSelectRow').style.display = "none"; // Hide site selection on edit as per common ERP logic
+            document.getElementById('modalSupervisor').value = task.supervisorId || task.assignedTo; 
+            document.getElementById('modalDesc').value = task.description;
+            document.getElementById('modalStatus').value = task.status;
+            
+            // Format date for input type="date" (YYYY-MM-DD)
+            if(task.deadline) {
+                const d = new Date(task.deadline);
+                document.getElementById('modalDeadline').value = d.toISOString().split('T')[0];
+            }
+            
+            document.getElementById('taskModal').style.display = 'flex';
+        }
+
+        function closeTaskModal() { document.getElementById('taskModal').style.display = 'none'; }
+
+        // FORM SUBMISSION (ADD & EDIT)
+        document.getElementById('taskForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const taskId = document.getElementById('modalTaskId').value;
+            
+            const payload = {
+                siteId: document.getElementById('modalSite').value,
+                description: document.getElementById('modalDesc').value,
+                assignedTo: document.getElementById('modalSupervisor').value,
+                deadline: document.getElementById('modalDeadline').value,
+                status: document.getElementById('modalStatus').value
+            };
+
+            try {
+                let url = '/md/tasks';
+                let method = 'POST';
+
+                if (taskId) {
+                    url = `/md/tasks/${taskId}`;
+                    method = 'PUT';
+                }
+
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    closeTaskModal();
+                    initData(); // Refresh table
+                } else {
+                    alert("Operation failed on server.");
+                }
+            } catch (err) { console.error(err); }
+        };
+
+        async function deleteTask(id) {
+            if (confirm("Permanently delete this task?")) {
+                await fetch(`/md/tasks/${id}`, { method: 'DELETE' });
+                initData();
+            }
+        }
+
+        function filterTasks() {
+            const search = document.getElementById('searchTask').value.toLowerCase();
+            const site = document.getElementById('filterSite').value;
+            const filtered = allTasks.filter(t => {
+                const matchSearch = t.description.toLowerCase().includes(search);
+                const matchSite = site === "" || String(t.siteId) === site;
+                return matchSearch && matchSite;
+            });
+            renderUI(filtered);
+        }
+
+        function logout() { fetch("/auth/logout", { method: "POST" }).then(() => location.href = "/"); }
+    </script>
+</body>
+</html>

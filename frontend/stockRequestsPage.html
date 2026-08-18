@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Requirements | Vishwakarma ERP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --sidebar-bg: #1e293b;
+            --bg-page: #f1f5f9;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --border: #e2e8f0;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --radius: 0.75rem;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-page); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar & Layout */
+        .sidebar { width: 260px; background: var(--sidebar-bg); color: #cbd5e1; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-header { padding: 2rem 1rem; text-align: center; font-weight: 700; font-size: 1.4rem; color: white; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-nav { padding: 1rem; flex-grow: 1; }
+        .sidebar-nav a { display: flex; align-items: center; color: #cbd5e1; text-decoration: none; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; transition: 0.3s; }
+        .sidebar-nav a.active, .sidebar-nav a:hover { background: var(--primary); color: white; }
+        .sidebar-nav i { width: 25px; margin-right: 10px; }
+
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .header { background: white; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .content-area { padding: 1.5rem; overflow-y: auto; flex-grow: 1; }
+
+        /* KPI Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .kpi-card { background: white; padding: 1.2rem; border-radius: var(--radius); box-shadow: var(--shadow); display: flex; align-items: center; gap: 1rem; border-left: 5px solid var(--primary); }
+        .kpi-card i { font-size: 2rem; color: var(--primary); }
+        .kpi-card .val { font-size: 1.5rem; font-weight: 700; }
+        .kpi-card .lab { font-size: 0.85rem; color: var(--text-sub); }
+
+        /* Filters */
+        .filter-bar { display: flex; gap: 1rem; background: white; padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem; box-shadow: var(--shadow); align-items: center; }
+        .filter-bar select, .filter-bar input { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; outline: none; }
+        .search-box { flex-grow: 1; }
+
+        /* Table */
+        .card { background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; background: #f8fafc; padding: 12px; color: var(--text-sub); font-size: 0.8rem; text-transform: uppercase; border-bottom: 2px solid var(--border); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+
+        /* Status Badges */
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: white; }
+        .bg-pending { background: var(--warning); }
+        .bg-completed { background: var(--success); }
+        .bg-rejected { background: var(--danger); }
+        .bg-rejected { background: var(--info); }
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 2rem; border-radius: var(--radius); width: 450px; position: relative; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
+        
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .btn-delete { color: var(--danger); border-color: var(--danger); }
+        .logout-btn {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
+    text-decoration: none;
+}
+
+.logout-btn:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.35);
+}
+
+.logout-btn:active {
+    transform: scale(0.97);
+}
+
+.logout-btn i {
+    font-size: 16px;
+}
+
+    </style>
+</head>
+
+<body>
+  
+    <main class="main-content">
+        <header class="header">
+            <h1>Stock Requirements</h1>
+            <div id="user-info" style="font-weight: 600;">Welcome, Pranay</div>
+            <a  href="/" class="logout-btn" >
+    <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </header>
+
+        <section class="content-area">
+            <!-- KPI Section -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <i class="fas fa-clipboard-list"></i>
+                    <div><div class="val" id="kpi-total">0</div><div class="lab">Total Requests</div></div>
+                </div>
+                <div class="kpi-card" style="border-left-color: var(--warning);">
+                    <i class="fas fa-clock" style="color: var(--warning);"></i>
+                    <div><div class="val" id="kpi-pending">0</div><div class="lab">Pending Approval</div></div>
+                </div>
+                <div class="kpi-card" style="border-left-color: var(--success);">
+                    <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                    <div><div class="val" id="kpi-completed">0</div><div class="lab">Completed Requests</div></div>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <input type="text" id="searchItem" class="search-box" placeholder="Search by item name...">
+                <select id="filterSite">
+                    <option value="">All Sites</option>
+                    <!-- Options populated by JS -->
+                </select>
+                <select id="filterStatus">
+                    <option value="">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+                
+            </div>
+
+            <!-- Table Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Stock Demands</h3>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Site ID</th>
+                            <th>Material Item</th>
+                            <th>Quantity</th>
+                            <th>Status</th>
+                          <th>DeadLine</th>
+                          <th>P.no</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requestTableBody">
+                        <!-- Dynamic Content -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for Add/Edit -->
+    <div class="modal" id="stockModal">
+        <div class="modal-content">
+            <h2 id="modalTitle" style="margin-bottom: 1.5rem;">New Stock Request</h2>
+            <form id="stockForm">
+                <input type="hidden" id="requestId">
+                <div class="form-group">
+                    <label>Target Site</label>
+                    <select id="siteId" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Material / Item Name</label>
+                    <input type="text" id="item" placeholder="e.g. Cement (Grade A)" required>
+                </div>
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="text" id="quantity" placeholder="e.g. 500 Bags" required>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="status">
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+              
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let allRequests = [];
+        let sitesList = [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchInitialData();
+
+            // Filter listeners
+            document.getElementById("searchItem").addEventListener("input", filterData);
+            document.getElementById("filterSite").addEventListener("change", filterData);
+            document.getElementById("filterStatus").addEventListener("change", filterData);
+
+           
+        });
+
+        async function fetchInitialData() {
+            try {
+                // Fetch Sites for dropdowns
+                const sRes = await fetch("/procurement/sites");
+                sitesList = await sRes.json();
+                populateSiteDropdowns();
+
+                // Fetch Stock Requests
+                const rRes = await fetch("/procurement/stock-requests");
+                allRequests = await rRes.json();
+                
+                renderUI(allRequests);
+            } catch (err) { console.error("Data fetch error", err); }
+        }
+
+        function populateSiteDropdowns() {
+            const filters = document.getElementById("filterSite");
+            const formSelect = document.getElementById("siteId");
+            
+            sitesList.forEach(s => {
+                const opt = `<option value="${s.siteId}">${s.siteName} (${s.siteId})</option>`;
+                filters.innerHTML += opt;
+                formSelect.innerHTML += opt;
+            });
+        }
+
+        function filterData() {
+            const search = document.getElementById("searchItem").value.toLowerCase();
+            const site = document.getElementById("filterSite").value;
+            const status = document.getElementById("filterStatus").value;
+
+            const filtered = allRequests.filter(r => {
+                return (r.item.toLowerCase().includes(search)) &&
+                       (site === "" || r.siteId === site) &&
+                       (status === "" || r.status === status);
+            });
+            renderUI(filtered);
+        }
+
+        function renderUI(data) {
+            const tbody = document.getElementById("requestTableBody");
+            tbody.innerHTML = "";
+
+            // Update KPIs
+            document.getElementById("kpi-total").textContent = allRequests.length;
+            document.getElementById("kpi-pending").textContent = allRequests.filter(r => r.status === 'Pending').length;
+            document.getElementById("kpi-completed").textContent = allRequests.filter(r => r.status === 'Completed').length;
+
+            data.forEach(r => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${new Date(r.requestDate).toLocaleDateString('en-GB')}</td>
+                        <td><strong>${r.siteName}</strong></td>
+                        <td>${r.item}</td>
+                        <td>${r.quantity}</td>
+                        <td><span class="badge bg-${r.status.toLowerCase()}">${r.status}</span></td>
+                        <td>${r.deadline}</td>
+                   <td>${r.siteEngineerPhone}<td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- CRUD Logic ---
+
+      
+
+    </script>
+</body>
+</html>

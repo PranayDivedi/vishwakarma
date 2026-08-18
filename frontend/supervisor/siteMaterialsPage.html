@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Materials | Vishwakarma</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root { 
+            --primary: #0d9488; 
+            --primary-dark: #0f766e;
+            --primary-light: #f0fdfa;
+            --bg: #f8fafc; 
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0; 
+            --white: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            background: var(--bg); 
+            padding: 20px; 
+            margin: 0; 
+            color: var(--text-main);
+        }
+
+        .container { 
+            max-width: 1000px; 
+            margin: auto; 
+            background: var(--white); 
+            padding: 25px; 
+            border-radius: 16px; 
+            box-shadow: var(--shadow);
+        }
+
+        /* Header Section */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 25px; 
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h2 { 
+            margin: 0; 
+            font-size: 1.5rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Buttons */
+        .btn { 
+            padding: 10px 20px; 
+            border-radius: 10px; 
+            border: none; 
+            cursor: pointer; 
+            font-weight: 600; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary { 
+            background: var(--primary); 
+            color: white; 
+        }
+
+        .btn-primary:hover { 
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-back {
+            background: var(--white);
+            color: var(--text-sub);
+            border: 1px solid var(--border);
+        }
+
+        .btn-back:hover {
+            background: #f1f5f9;
+            color: var(--text-main);
+        }
+
+        /* Table Design */
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            min-width: 600px;
+        }
+
+        th { 
+            background: #f8fafc;
+            padding: 15px; 
+            text-align: left; 
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-sub);
+            border-bottom: 2px solid var(--border);
+        }
+
+        td { 
+            padding: 16px 15px; 
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        tr:hover td {
+            background-color: var(--primary-light);
+        }
+
+        /* Status Badges */
+        .status-badge { 
+            padding: 5px 12px; 
+            border-radius: 8px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .Available { background: #dcfce7; color: #166534; }
+        .Low-Stock { background: #fef3c7; color: #92400e; }
+        .Out-of-Stock { background: #fee2e2; color: #991b1b; }
+
+        .action-icons {
+            display: flex;
+            gap: 15px;
+            font-size: 1.1rem;
+        }
+
+        .fa-edit { color: var(--primary); cursor: pointer; transition: 0.2s; }
+        .fa-edit:hover { color: var(--primary-dark); }
+        .fa-trash { color: #ef4444; cursor: pointer; transition: 0.2s; }
+        .fa-trash:hover { color: #b91c1c; }
+
+        /* Modal Design */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6); 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content { 
+            background: var(--white); 
+            padding: 30px; 
+            border-radius: 16px; 
+            width: 100%;
+            max-width: 450px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: modalSlide 0.3s ease-out;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal h3 { 
+            margin-top: 0; 
+            margin-bottom: 20px;
+            color: var(--text-main);
+            border-left: 4px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        .form-group { margin-bottom: 18px; }
+        .form-group label { 
+            display: block; 
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            margin-bottom: 6px; 
+            color: var(--text-sub);
+        }
+
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid var(--border); 
+            border-radius: 8px; 
+            outline: none;
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        /* Responsive Mobile Adjustments */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 15px; border-radius: 12px; }
+            .header h2 { font-size: 1.25rem; }
+            .btn { padding: 8px 15px; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2><i class="fas fa-boxes" style="color:var(--primary)"></i> Inventory Management</h2>
+            <div class="header-actions">
+                <a href="#" id="backBtn" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <button class="btn btn-primary" onclick="openMatModal()">
+                    <i class="fas fa-plus"></i> Add Material
+                </button>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Material Name</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="matBody">
+                    <!-- Loaded dynamically via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="matModal" class="modal">
+        <div class="modal-content">
+            <h3 id="matTitle">Add Material</h3>
+            <form id="matForm">
+                <input type="hidden" id="materialId">
+                <div class="form-group">
+                    <label>Item Name</label>
+                    <input type="text" id="itemName" placeholder="e.g. Cement (Bags)" required>
+                </div>
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" id="quantity" placeholder="e.g. 100" required>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="status">
+                        <option value="Available">Available</option>
+                        <option value="Low Stock">Low Stock</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary" style="justify-content: center;">Save Material</button>
+                    <button type="button" onclick="closeMatModal()" class="btn btn-back" style="justify-content: center;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script>
+    /* ===============================
+       BASIC SETUP
+    =============================== */
+    const siteId = new URLSearchParams(location.search).get("siteId");
+    document.getElementById("backBtn").href =
+        `/supervisor/siteDetailsPage?siteId=${siteId}`;
+
+    const matForm       = document.getElementById("matForm");
+    const matBody       = document.getElementById("matBody");
+    const materialIdEl  = document.getElementById("materialId");
+    const itemNameEl    = document.getElementById("itemName");
+    const quantityEl    = document.getElementById("quantity");
+    const statusEl      = document.getElementById("status");
+
+    /* ===============================
+       LOAD MATERIALS
+    =============================== */
+    async function loadMaterials() {
+        try {
+            const res = await fetch(`/md/materials/${siteId}`);
+            const data = await res.json();
+
+            matBody.innerHTML = data.length ? "" : "<tr><td colspan='4' style='text-align:center; padding:30px; color:#64748b;'>No materials found for this site.</td></tr>";
+
+            data.forEach(m => {
+                const statusClass = m.status.replaceAll(" ", "-");
+
+                matBody.innerHTML += `
+                    <tr>
+                        <td><strong>${m.itemName}</strong></td>
+                        <td><span style="font-weight:600">${m.quantity}</span></td>
+                        <td>
+                            <span class="status-badge ${statusClass}">
+                                ${m.status}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-icons">
+                                <i class="fas fa-edit" title="Edit" onclick='editMat(${JSON.stringify(m)})'></i>
+                                <i class="fas fa-trash" title="Delete" onclick="deleteMat(${m.materialId})"></i>
+                            </div>
+                        </td>
+                    </tr>`;
+            });
+        } catch (error) {
+            console.error("Error loading materials:", error);
+            matBody.innerHTML = "<tr><td colspan='4' style='text-align:center; color:red;'>Failed to load materials.</td></tr>";
+        }
+    }
+
+    /* ===============================
+       MODAL CONTROLS
+    =============================== */
+    function openMatModal() {
+        matForm.reset();
+        materialIdEl.value = "";
+        document.getElementById("matTitle").innerText = "Add Material";
+        document.getElementById("matModal").style.display = "flex";
+    }
+
+    function closeMatModal() {
+        document.getElementById("matModal").style.display = "none";
+    }
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        const modal = document.getElementById("matModal");
+        if (event.target == modal) {
+            closeMatModal();
+        }
+    }
+
+    function editMat(m) {
+        document.getElementById("matTitle").innerText = "Edit Material";
+        materialIdEl.value = m.materialId;
+        itemNameEl.value   = m.itemName;
+        quantityEl.value   = m.quantity;
+        statusEl.value     = m.status;
+        document.getElementById("matModal").style.display = "flex";
+    }
+
+    /* ===============================
+       SAVE MATERIAL (ADD / UPDATE)
+    =============================== */
+    matForm.onsubmit = async (e) => {
+        e.preventDefault();
+
+        const id = materialIdEl.value;
+
+        const payload = {
+            siteId,
+            itemName: itemNameEl.value.trim(),
+            quantity: Number(quantityEl.value),
+            status: statusEl.value
+        };
+
+        try {
+            await fetch(id ? `/md/materials/${id}` : `/md/materials`, {
+                method: id ? "PUT" : "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            closeMatModal();
+            loadMaterials();
+        } catch (error) {
+            console.error("Error saving material:", error);
+            alert("Failed to save material. Please try again.");
+        }
+    };
+
+    /* ===============================
+       DELETE MATERIAL
+    =============================== */
+    async function deleteMat(id) {
+        if (confirm("Are you sure you want to remove this item?")) {
+            try {
+                await fetch(`/md/materials/${id}`, { method: "DELETE" });
+                loadMaterials();
+            } catch (error) {
+                console.error("Error deleting material:", error);
+                alert("Failed to delete item.");
+            }
+        }
+    }
+
+    /* ===============================
+       INITIAL LOAD
+    =============================== */
+    loadMaterials();
+</script>
+
+</body>
+</html>

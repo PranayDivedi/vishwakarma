@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Client Dashboard | Vishwakarma ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #f0fdfa;
+            --sidebar: #1e293b;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --sub: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
+        
+        body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar);
+            color: #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            text-align: center;
+            font-weight: 700;
+            color: #fff;
+            font-size: 22px;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        .sidebar-nav { padding: 16px; flex: 1; }
+        
+        .sidebar-nav a {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            color: #cbd5e1;
+            text-decoration: none;
+            margin-bottom: 8px;
+            transition: 0.2s;
+        }
+
+        .sidebar-nav a.active, .sidebar-nav a:hover {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+        .header {
+            background: #fff;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 70px;
+        }
+
+        .header h3 { font-size: 1.25rem; font-weight: 700; color: var(--text); }
+
+        .menu-toggle {
+            display: none;
+            background: var(--primary-light);
+            border: none;
+            color: var(--primary);
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+
+        .content { padding: 24px; overflow-y: auto; flex: 1; }
+
+        /* ===== INFO GRID ===== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+        
+        .card:hover { transform: translateY(-3px); }
+
+        .card label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--sub);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .card .val { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+
+        /* ===== PROGRESS ===== */
+        .progress-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .progress-bg { height: 12px; background: #e5e7eb; border-radius: 10px; overflow: hidden; margin-top: 12px; }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; border-radius: 10px; transition: 1s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            background: #fff;
+            border-radius: var(--radius) var(--radius) 0 0;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .tabs::-webkit-scrollbar { display: none; }
+
+        .tab {
+            padding: 14px 24px;
+            font-weight: 600;
+            color: var(--sub);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .tab-content {
+            display: none;
+            background: #fff;
+            padding: 24px;
+            border: 1px solid var(--border);
+            border-radius: 0 0 var(--radius) var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ===== TABLES ===== */
+        .table-wrap { overflow-x: auto; width: 100%; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        
+        th {
+            background: #f8fafc;
+            padding: 14px;
+            font-size: 0.75rem;
+            color: var(--sub);
+            text-align: left;
+            text-transform: uppercase;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td { padding: 14px; border-bottom: 1px solid var(--border); font-size: 0.9rem; color: var(--text); }
+        
+        tr:last-child td { border-bottom: none; }
+
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; }
+
+        .finance-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+
+        .total-credit-box {
+            background: var(--primary-light);
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        /* ===== MOBILE RESPONSIVENESS ===== */
+        @media (max-width: 992px) {
+            .sidebar {
+                position: absolute;
+                left: -260px;
+                height: 100%;
+            }
+            .sidebar.active { left: 0; }
+            .menu-toggle { display: block; }
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+            .sidebar-overlay.active { display: block; }
+        }
+
+        @media (max-width: 600px) {
+            .content { padding: 16px; }
+            .info-grid { grid-template-columns: 1fr; }
+            .tab { padding: 12px 16px; font-size: 0.85rem; }
+            .header h3 { font-size: 1.1rem; }
+            .gallery { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">VISHWAKARMA</div>
+    <nav class="sidebar-nav">
+        <a class="active"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a onclick="logout()" style="cursor: pointer; margin-top: auto; color: #fca5a5;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+</div>
+
+<div class="main">
+    <header class="header">
+        <div style="display: flex; align-items: center;">
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h3 id="siteName">Loading Site...</h3>
+        </div>
+        <div style="color: var(--sub); font-size: 0.9rem; font-weight: 500;" class="desktop-only">Client Portal</div>
+    </header>
+
+    <div class="content">
+
+        <div class="info-grid">
+            <div class="card"><label><i class="fas fa-wallet" style="margin-right: 5px;"></i> Budget</label><div class="val" id="budget">₹0</div></div>
+            <div class="card"><label><i class="fas fa-users" style="margin-right: 5px;"></i> Workers</label><div class="val" id="workers">0</div></div>
+            <div class="card"><label><i class="fas fa-calendar-alt" style="margin-right: 5px;"></i> Timeline</label><div class="val" id="timeline">--</div></div>
+            <div class="card"><label><i class="fas fa-shield-alt" style="margin-right: 5px;"></i> Risk</label><div class="val" id="risk">--</div></div>
+            <div class="card"><label><i class="fas fa-user-hard-hat" style="margin-right: 5px;"></i> Engineer</label><div class="val" id="engineer">--</div></div>
+            <div class="card"><label><i class="fas fa-phone" style="margin-right: 5px;"></i> Eng. Contact</label><div class="val" id="engineerPhone">--</div></div>
+            <div class="card"><label><i class="fas fa-map-marker-alt" style="margin-right: 5px;"></i> Location</label><div class="val" id="location">--</div></div>
+        </div>
+
+        <div class="progress-box">
+            <div style="display:flex;justify-content:space-between; align-items: center;">
+                <span style="font-weight:600; color:var(--text); font-size: 0.9rem;">Overall Completion</span>
+                <span id="percent" style="font-weight:800;color:var(--primary); font-size: 1.1rem;">0%</span>
+            </div>
+            <div class="progress-bg"><div id="progressBar" class="progress-fill"></div></div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="activity">Activity</div>
+            <div class="tab" data-tab="tasks">Tasks</div>
+            <div class="tab" data-tab="finance">Financials</div>
+            <div class="tab" data-tab="photos">Gallery</div>
+        </div>
+
+        <div id="activity" class="tab-content active">
+            <div class="table-wrap">
+                <table><thead><tr><th>Date</th><th>Description</th></tr></thead><tbody id="activityTbl"></tbody></table>
+            </div>
+        </div>
+
+        <div id="tasks" class="tab-content">
+            <div class="table-wrap">
+                <table><thead><tr><th>Task</th><th>Status</th></tr></thead><tbody id="taskTbl"></tbody></table>
+            </div>
+        </div>
+
+        <div id="finance" class="tab-content">
+            <div class="finance-grid">
+                <div>
+                    <h4 style="margin:0 0 15px;color:#0f172a">Payment Summary</h4>
+                    <div id="totalCredit" class="total-credit-box"><b>Total Credit:</b> ₹0</div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr><th>Date</th><th>Amount</th><th>Note</th></tr>
+                            </thead>
+                            <tbody id="txnTbl"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="photos" class="tab-content">
+            <div id="gallery" class="gallery"></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Toggle Sidebar for Mobile
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    // Tabs functionality
+    document.querySelectorAll(".tab").forEach(t => {
+        t.onclick = () => {
+            document.querySelectorAll(".tab,.tab-content").forEach(e => e.classList.remove("active"));
+            t.classList.add("active");
+            document.getElementById(t.dataset.tab).classList.add("active");
+        }
+    });
+
+    async function loadData() {
+        const res = await fetch("/client/site-details");
+        const d = await res.json();
+        const s = d.site;
+        
+        // Match IDs and populate data
+        document.getElementById('totalCredit').innerHTML = `<b>Total Credit:</b> ₹${Number(d.financials.credit).toLocaleString("en-IN")}`;
+        document.getElementById('siteName').textContent = s.siteName;
+        document.getElementById('budget').textContent = "₹" + Number(s.budget).toLocaleString("en-IN");
+        document.getElementById('workers').textContent = s.workersCount;
+        document.getElementById('risk').textContent = s.risk;
+        document.getElementById('engineer').textContent = s.siteEngineerName || "Not Assigned";
+        document.getElementById('engineerPhone').textContent = s.siteEngineerPhone || "N/A";
+        document.getElementById('location').textContent = s.siteLocation || "N/A";
+
+        document.getElementById('timeline').textContent =
+            (new Date(s.startDate).toLocaleDateString("en-IN")) + " to " +
+            (new Date(s.deadline).toLocaleDateString("en-IN"));
+
+        document.getElementById('percent').textContent = s.completion + "%";
+        document.getElementById('progressBar').style.width = s.completion + "%";
+
+        /* Tables */
+        render(document.getElementById('activityTbl'), d.activity, ["activityDate", "description"]);
+        render(document.getElementById('taskTbl'), d.tasks, ["description", "status"]);
+
+        //* Photos with caption */
+        const gallery = document.getElementById('gallery');
+        gallery.innerHTML = "";
+
+        (d.photos || []).forEach(p => {
+            const url = p.photoUrl.toLowerCase();
+            const isImage = /\.(jpg|jpeg|png|webp|gif)$/.test(url);
+            let preview = "";
+
+            if (isImage) {
+                preview = `
+                    <a href="${p.photoUrl}" target="_blank" title="View Image">
+                        <img src="${p.photoUrl}"
+                             style="
+                                width:100%;
+                                height:110px;
+                                object-fit:cover;
+                                border-radius:8px;
+                                border:1px solid #ddd;
+                                display: block;
+                             ">
+                    </a>
+                `;
+            } else {
+                preview = `
+                    <a href="${p.photoUrl}" target="_blank"
+                       style="
+                          width:100%;
+                          height:110px;
+                          display:flex;
+                          flex-direction:column;
+                          align-items:center;
+                          justify-content:center;
+                          gap:6px;
+                          border:1px solid #ddd;
+                          border-radius:8px;
+                          background:#f8fafc;
+                          text-decoration:none;
+                          color:#0d9488;
+                          font-size:11px;
+                          font-weight:600;
+                       ">
+                        <i class="fas fa-file-alt" style="font-size:28px;color:#64748b"></i>
+                        Open File
+                    </a>
+                `;
+            }
+
+            const caption = p.caption || "No caption";
+            const date = p.uploadedAt ? new Date(p.uploadedAt).toLocaleDateString("en-IN") : "";
+
+            gallery.innerHTML += `
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    ${preview}
+                    <small style="
+                        text-align:center;
+                        color:#475569;
+                        font-size:10px;
+                        line-height:1.2;
+                        white-space:normal;
+                        overflow:hidden;
+                        display:-webkit-box;
+                        -webkit-line-clamp:2;
+                        -webkit-box-orient:vertical;
+                    " title="${caption}">
+                        ${caption}
+                        ${date ? `<br><span style="color:#94a3b8">${date}</span>` : ""}
+                    </small>
+                </div>
+            `;
+        });
+
+        /* Transactions */
+        render(document.getElementById('txnTbl'), d.transactions || [], ["transactionDate", "amount", "description"]);
+    }
+
+    function render(tbl, data, keys) {
+        tbl.innerHTML = data.length ? "" : "<tr><td colspan='4' style='text-align:center; padding: 20px;'>No records found</td></tr>";
+        data.forEach(o => {
+            let r = "<tr>";
+            keys.forEach(k => {
+                let v = o[k];
+                if (k === "transactionDate") v = new Date(o[k]).toLocaleDateString("en-IN");
+                if (k === "amount") v = "₹" + Number(o[k]).toLocaleString("en-IN");
+                r += `<td>${v || "N/A"}</td>`;
+            });
+            tbl.innerHTML += r + "</tr>";
+        });
+    }
+
+    function logout() {
+        if(confirm("Are you sure you want to logout?")) {
+            fetch("/auth/logout", { method: "POST" }).then(() => location.href = "/");
+        }
+    }
+
+    loadData();
+</script>
+
+</body>
+</html>

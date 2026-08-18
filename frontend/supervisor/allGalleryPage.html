@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Gallery & Documents | Vishwakarma</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #f0fdfa;
+            --sidebar-bg: #1e293b;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --radius: 1rem;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
+        body { display: flex; height: 100vh; background: var(--bg-page); color: var(--text-main); overflow: hidden; }
+
+        /* Sidebar Styling */
+        .sidebar { 
+            width: 280px; 
+            background: var(--sidebar-bg); 
+            color: #cbd5e1; 
+            display: flex; 
+            flex-direction: column; 
+            flex-shrink: 0; 
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .sidebar-header { 
+            padding: 2rem 1rem; 
+            text-align: center; 
+            font-weight: 800; 
+            font-size: 1.5rem; 
+            color: white; 
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+        }
+
+        .sidebar-nav { padding: 1rem; flex-grow: 1; overflow-y: auto; }
+        .sidebar-nav a { 
+            display: flex; align-items: center; color: #94a3b8; 
+            text-decoration: none; padding: 12px 16px; border-radius: 12px; 
+            margin-bottom: 6px; transition: var(--transition);
+        }
+        .sidebar-nav a:hover, .sidebar-nav a.active { 
+            background: var(--primary); color: white; 
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+        }
+        .sidebar-nav i { width: 25px; margin-right: 12px; font-size: 1.1rem; }
+
+        /* Main Content */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        
+        .header { 
+            background: white; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+        }
+        .header-title { display: flex; align-items: center; gap: 10px; }
+
+        .content-area { padding: 1.5rem; overflow-y: auto; flex-grow: 1; scroll-behavior: smooth; }
+
+        /* Mobile Menu Toggle */
+        .menu-btn {
+            display: none; background: var(--primary-light); border: none; 
+            color: var(--primary); padding: 10px; border-radius: 10px; cursor: pointer;
+        }
+
+        /* Filter Bar */
+        .filter-bar { 
+            background: #fff; padding: 1rem; border-radius: var(--radius); 
+            display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: center; 
+            box-shadow: var(--shadow); flex-wrap: wrap;
+        }
+        .filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        select, input[type="date"] { 
+            padding: 10px 14px; border: 1px solid var(--border); 
+            border-radius: 10px; outline: none; transition: 0.2s; background: #fcfcfd;
+        }
+
+        .btn {
+            padding: 10px 18px; border-radius: 10px; border: none; 
+            font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: var(--transition); font-size: 0.9rem;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-sub); }
+        .btn-outline:hover { background: #f8fafc; }
+
+        .tab-btn { 
+            border: none; background: none; padding: 8px 18px; 
+            font-weight: 600; cursor: pointer; color: var(--text-sub); border-radius: 8px; transition: 0.2s;
+        }
+        .tab-btn.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(13, 148, 136, 0.2); }
+
+        /* Grid & Cards */
+        .gallery-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 1.5rem; 
+        }
+
+        .asset-card { 
+            background: #fff; border-radius: var(--radius); overflow: hidden; 
+            position: relative; box-shadow: var(--shadow); transition: 0.3s;
+            border: 1px solid var(--border);
+        }
+        .asset-card:hover { transform: translateY(-8px); }
+
+        .media-container { 
+            width: 100%; height: 200px; position: relative; 
+            background: #f1f5f9; display: flex; align-items: center; 
+            justify-content: center; overflow: hidden; cursor: pointer; 
+        }
+        .media-img { width: 100%; height: 100%; object-fit: cover; }
+
+        .doc-placeholder { 
+            display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--primary); 
+        }
+        .doc-placeholder i { font-size: 4rem; }
+        .doc-label { 
+            font-size: 0.7rem; font-weight: 800; text-transform: uppercase; 
+            background: var(--primary); color: white; padding: 3px 10px; border-radius: 6px; 
+        }
+
+        .delete-btn {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(239, 68, 68, 0.9); border: none; color: #fff;
+            width: 36px; height: 36px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; 
+            z-index: 10; transition: 0.2s;
+        }
+
+        .asset-info { padding: 15px; }
+        .asset-caption { 
+            font-weight: 700; font-size: 0.95rem; color: var(--text-main); 
+            margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+        }
+        .asset-meta { font-size: 0.75rem; color: var(--text-sub); display: flex; justify-content: space-between; }
+
+        /* Pagination Styling */
+        .pagination-container {
+            display: flex; justify-content: center; align-items: center; gap: 15px;
+            margin-top: 2rem; padding-bottom: 2rem;
+        }
+        .page-info { font-weight: 600; font-size: 0.9rem; color: var(--text-sub); }
+
+        /* Modal */
+        .modal { 
+            display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); 
+            z-index: 2000; align-items: center; justify-content: center; padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+        .modal.active { display: flex; }
+        .modal-content { 
+            background: white; padding: 2rem; border-radius: 1.5rem; width: 100%; 
+            max-width: 500px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+        .form-input { 
+            width: 100%; padding: 12px; border: 1px solid var(--border); 
+            border-radius: 10px; outline: none;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 992px) {
+            .sidebar { position: fixed; left: -280px; height: 100vh; }
+            .sidebar.active { left: 0; }
+            .menu-btn { display: block; }
+            .sidebar-overlay { 
+                display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; 
+            }
+            .sidebar-overlay.active { display: block; }
+        }
+
+        @media (max-width: 640px) {
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .gallery-grid { grid-template-columns: 1fr; }
+            .header h2 { font-size: 1.2rem; }
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">VISHWAKARMA</div>
+    <nav class="sidebar-nav">
+        <a href="/supervisor/dashboard"><i class="fas fa-tachometer-alt"></i> My Dashboard</a>
+        <a href="/supervisor/allSitesPage"><i class="fas fa-building"></i> All Sites</a>
+        <a href="/supervisor/employeesPage"><i class="fas fa-users"></i> Workforce</a>
+        <a href="/supervisor/clientRequirementsPage"><i class="fas fa-clipboard-check"></i> Client Requirements</a>
+        <a href="/supervisor/performancePage"><i class="fas fa-chart-bar"></i> Performance</a>
+        <a href="/supervisor/allGalleryPage" class="active"><i class="fas fa-images"></i> Gallery</a>
+        <a href="/supervisor/stockRequestsPage"><i class="fas fa-boxes"></i> Stock Requests</a>
+        <a href="/supervisor/siteDetailsPage"><i class="fas fa-map-marked-alt"></i> Site Details</a>
+        <a href="#" onclick="logout()" style="margin-top:auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+</aside>
+
+<main class="main-content">
+    <header class="header">
+        <div class="header-title">
+            <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <h2>Site Gallery</h2>
+        </div>
+        <button class="btn btn-primary" onclick="openUploadModal()">
+            <i class="fas fa-plus"></i> Add Asset
+        </button>
+    </header>
+
+    <section class="content-area">
+        <div class="filter-bar">
+            <div class="filter-group">
+                <select id="siteFilter" onchange="resetToFirstPage()">
+                    <option value="">All Sites</option>
+                </select>
+                <input type="date" id="dateFilter" onchange="resetToFirstPage()">
+            </div>
+            
+            <button class="btn btn-outline" onclick="resetFilter()">Reset</button>
+
+            <div style="margin-left:auto; background: #f1f5f9; padding: 4px; border-radius: 12px; display: flex;">
+                <button id="btnPhotos" class="tab-btn active" onclick="switchTab('photos')">Photos</button>
+                <button id="btnDocs" class="tab-btn" onclick="switchTab('docs')">Documents</button>
+            </div>
+        </div>
+
+        <!-- Photos Section -->
+        <div id="photosPanel">
+            <div class="gallery-grid" id="photoContainer"></div>
+        </div>
+
+        <!-- Docs Section -->
+        <div id="docsPanel" class="hidden">
+            <div class="gallery-grid" id="docContainer"></div>
+        </div>
+
+        <!-- Unified Pagination Controls -->
+        <div class="pagination-container" id="paginationControls">
+            <button class="btn btn-primary" id="prevBtn" onclick="changePage(-1)">
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <span class="page-info" id="pageInfo">Page 1 of 1</span>
+            <button class="btn btn-primary" id="nextBtn" onclick="changePage(1)">
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+</main>
+
+<!-- Upload Modal -->
+<div class="modal" id="uploadModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Upload Asset</h3>
+            <button style="border:none; background:none; font-size:1.5rem;" onclick="closeUploadModal()">&times;</button>
+        </div>
+        <form id="uploadForm" onsubmit="handleUpload(event)">
+            <div class="form-group">
+                <label>Target Site</label>
+                <select id="modalSiteSelect" class="form-input" required></select>
+            </div>
+            <div class="form-group">
+                <label>Caption</label>
+                <input type="text" id="modalCaption" class="form-input" placeholder="Enter description" required>
+            </div>
+            <div class="form-group">
+                <label>File (Photo/PDF)</label>
+                <input type="file" id="modalFile" class="form-input" accept="image/*,application/pdf" required>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 1rem;">
+                <button type="button" class="btn btn-outline" style="flex:1" onclick="closeUploadModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="flex:2; justify-content:center;">Upload</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let allAssets = [];
+let currentTab = 'photos';
+let currentPage = 1;
+const itemsPerPage = 8; // Adjust this number per page
+
+document.addEventListener("DOMContentLoaded", async () => {
+    await fetchSites();
+    await fetchAssets();
+});
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+
+async function fetchSites() {
+    try {
+        const res = await fetch("/md/sites");
+        const sites = await res.json();
+        const sel = document.getElementById("siteFilter");
+        const modalSel = document.getElementById("modalSiteSelect");
+        sites.forEach(s => {
+            const html = `<option value="${s.siteId}">${s.siteName}</option>`;
+            sel.innerHTML += html;
+            modalSel.innerHTML += html;
+        });
+    } catch (e) { console.error("Sites fetch failed"); }
+}
+
+async function fetchAssets() {
+    try {
+        const res = await fetch("/supervisor/allSitePhotos");
+        allAssets = await res.json();
+        filterAndRender();
+    } catch (e) { console.error("Assets fetch failed"); }
+}
+
+function resetToFirstPage() {
+    currentPage = 1;
+    filterAndRender();
+}
+
+function filterAndRender() {
+    const site = document.getElementById("siteFilter").value;
+    const date = document.getElementById("dateFilter").value;
+
+    // 1. Filter the raw data
+    const filteredByCriteria = allAssets.filter(a => {
+        const sOk = site === "" || a.siteId === site;
+        const dOk = date === "" || a.uploadedAt.startsWith(date);
+        return sOk && dOk;
+    });
+
+    // 2. Separate into Tabs
+    const photos = filteredByCriteria.filter(a => isImage(a.photoUrl));
+    const docs = filteredByCriteria.filter(a => !isImage(a.photoUrl));
+
+    // 3. Determine which set to paginate
+    const currentDataSet = (currentTab === 'photos') ? photos : docs;
+
+    // 4. Calculate Pagination
+    const totalPages = Math.ceil(currentDataSet.length / itemsPerPage) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedData = currentDataSet.slice(startIndex, startIndex + itemsPerPage);
+
+    // 5. Render
+    renderGrid(paginatedData);
+    updatePaginationUI(totalPages, currentDataSet.length);
+}
+
+function isImage(url) {
+    return /\.(jpg|jpeg|png|webp|gif)$/i.test(url);
+}
+
+function renderGrid(data) {
+    const container = (currentTab === 'photos') ? document.getElementById("photoContainer") : document.getElementById("docContainer");
+    
+    // Clear both to prevent ghosting
+    document.getElementById("photoContainer").innerHTML = "";
+    document.getElementById("docContainer").innerHTML = "";
+
+    if (data.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-sub);">No items found in this section.</div>`;
+        return;
+    }
+
+    data.forEach(item => {
+        const dateStr = new Date(item.uploadedAt).toLocaleDateString('en-GB');
+        const ext = item.photoUrl.split('.').pop().toUpperCase();
+
+        container.innerHTML += `
+            <div class="asset-card">
+                <button class="delete-btn" onclick="deleteAsset(${item.photoId})">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+                <div class="media-container" onclick="window.open('${item.photoUrl}')">
+                    ${isImage(item.photoUrl) 
+                        ? `<img src="${item.photoUrl}" class="media-img" loading="lazy">` 
+                        : `<div class="doc-placeholder">
+                             <i class="fas fa-file-pdf"></i>
+                             <span class="doc-label">${ext}</span>
+                           </div>`
+                    }
+                </div>
+                <div class="asset-info">
+                    <div class="asset-caption">${item.caption || "Untitled Asset"}</div>
+                    <div class="asset-meta">
+                        <span><i class="fas fa-map-marker-alt" style="color:var(--primary)"></i> ${item.siteName}</span>
+                        <span>${dateStr}</span>
+                    </div>
+                </div>
+            </div>`;
+    });
+}
+
+function updatePaginationUI(totalPages, totalItems) {
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const info = document.getElementById("pageInfo");
+
+    prevBtn.disabled = (currentPage === 1);
+    nextBtn.disabled = (currentPage === totalPages);
+    info.innerText = `Page ${currentPage} of ${totalPages} (${totalItems} total)`;
+}
+
+function changePage(offset) {
+    currentPage += offset;
+    filterAndRender();
+    document.querySelector('.content-area').scrollTop = 0;
+}
+
+async function handleUpload(e) {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("siteId", document.getElementById("modalSiteSelect").value);
+    formData.append("caption", document.getElementById("modalCaption").value);
+    formData.append("photo", document.getElementById("modalFile").files[0]);
+
+    try {
+        const res = await fetch("/supervisor/uploadSitePhoto", { method: "POST", body: formData });
+        if (res.ok) {
+            closeUploadModal();
+            fetchAssets();
+        } else { alert("Upload failed."); }
+    } catch (e) { alert("Server error"); }
+}
+
+async function deleteAsset(id) {
+    if (!confirm("Are you sure?")) return;
+    try {
+        const res = await fetch(`/md/photos/${id}`, { method: "DELETE" });
+        if (res.ok) fetchAssets();
+    } catch (e) { alert("Delete error"); }
+}
+
+function switchTab(t) {
+    currentTab = t;
+    currentPage = 1;
+    document.getElementById("photosPanel").classList.toggle("hidden", t !== "photos");
+    document.getElementById("docsPanel").classList.toggle("hidden", t !== "docs");
+    document.getElementById("btnPhotos").classList.toggle("active", t === "photos");
+    document.getElementById("btnDocs").classList.toggle("active", t === "docs");
+    filterAndRender();
+}
+
+function resetFilter() {
+    document.getElementById("siteFilter").value = "";
+    document.getElementById("dateFilter").value = "";
+    resetToFirstPage();
+}
+
+function openUploadModal() { document.getElementById("uploadModal").classList.add("active"); }
+function closeUploadModal() { document.getElementById("uploadModal").classList.remove("active"); }
+function logout() { fetch("/auth/logout", { method: "POST" }).then(() => location.href = "/"); }
+</script>
+</body>
+</html>

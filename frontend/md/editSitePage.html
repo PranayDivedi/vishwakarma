@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Site | Vishwakarma ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #f0fdfa;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --radius: 12px;
+            --shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        
+        body { 
+            margin: 0; 
+            background: var(--bg); 
+            background-image: radial-gradient(circle at 2px 2px, var(--border) 1px, transparent 0);
+            background-size: 32px 32px;
+            padding: 40px 20px; 
+            color: var(--text-main);
+        }
+
+        .container {
+            max-width: 850px;
+            margin: auto;
+            background: var(--card);
+            padding: 0;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        /* Header Styling */
+        .form-header {
+            background: var(--primary);
+            padding: 30px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-header h2 { margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 12px; }
+        .form-header p { margin: 5px 0 0 35px; opacity: 0.8; font-size: 0.9rem; }
+
+        .form-body { padding: 40px; }
+
+        /* Grid System */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .full-width { grid-column: span 2; }
+
+        .form-group { margin-bottom: 5px; }
+        
+        label { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+            font-size: 0.85rem; 
+            color: var(--text-sub); 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        label i { color: var(--primary); font-size: 1rem; width: 20px; text-align: center; }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            outline: none;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background-color: #fcfcfc;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus { 
+            border-color: var(--primary); 
+            background-color: white;
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+        /* Conditional Section Styling */
+        .conditional-section {
+            display: none; 
+            grid-column: span 2;
+            background: var(--primary-light);
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px dashed var(--primary);
+            margin: 10px 0;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .section-halted { 
+            background: #fff1f2; 
+            border-color: var(--danger); 
+        }
+        .section-halted label i { color: var(--danger); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Buttons */
+        .actions { 
+            display: flex; 
+            gap: 15px; 
+            margin-top: 40px; 
+            padding-top: 30px; 
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-save { background: var(--primary); color: white; box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3); }
+        .btn-save:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+        .btn-cancel { background: #f1f5f9; color: var(--text-sub); }
+        .btn-cancel:hover { background: #e2e8f0; color: var(--text-main); }
+
+        /* Status colors for the dropdown */
+        select#status { font-weight: 700; }
+        option[value="ongoing"] { color: var(--primary); }
+        option[value="completed"] { color: var(--success); }
+        option[value="halted"] { color: var(--danger); }
+        option[value="upcoming"] { color: var(--warning); }
+
+        @media (max-width: 768px) { 
+            .grid { grid-template-columns: 1fr; } 
+            .full-width { grid-column: span 1; } 
+            .form-body { padding: 25px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="form-header">
+        <div>
+            <h2><i class="fas fa-edit"></i> Edit Site Details</h2>
+            <p>Update project milestones, status, and engineer assignments.</p>
+        </div>
+        <i class="fas fa-building fa-3x" style="opacity: 0.2;"></i>
+    </div>
+
+    <form id="editSiteForm" class="form-body">
+        <div class="grid">
+            <!-- Basic Info -->
+            <div class="form-group full-width">
+                <label><i class="fas fa-signature"></i> Site Name *</label>
+                <input type="text" id="siteName" name="siteName" placeholder="Enter project title" required>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-tasks"></i> Work Status</label>
+                <select id="status" name="status" onchange="handleStatusChange()">
+                    <option value="ongoing">Ongoing</option>
+                    <option value="completed">Completed</option>
+                    <option value="halted">Halted</option>
+                    <option value="upcoming">Upcoming</option>
+                
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-shield-alt"></i> Risk Assessment</label>
+                <select id="risk" name="risk">
+                    <option value="On Track">On Track</option>
+                    <option value="Minor Delay">Minor Delay</option>
+                    <option value="At Risk">At Risk</option>
+                </select>
+            </div>
+
+            <!-- COMPLETED FIELDS SECTION -->
+            <div id="sectionCompleted" class="conditional-section">
+                <div class="grid" style="width: 100%;">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-check"></i> Completion Date</label>
+                        <input type="date" id="completedDate" name="completedDate">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-comment-dots"></i> Client Feedback</label>
+                        <input type="text" id="feedback" name="feedback" placeholder="Summarize client comments">
+                    </div>
+                </div>
+            </div>
+
+            <!-- HALTED FIELDS SECTION -->
+            <div id="sectionHalted" class="conditional-section section-halted">
+                <div class="grid" style="width: 100%;">
+                    <div class="form-group">
+                        <label><i class="fas fa-exclamation-triangle"></i> Halt Reason</label>
+                        <input type="text" id="haltReason" name="haltReason" placeholder="Reason for stoppage">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-times"></i> Halted Since</label>
+                        <input type="date" id="haltDate" name="haltDate">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quantitative Data -->
+            <div class="form-group">
+                <label><i class="fas fa-percentage"></i> Completion Percent</label>
+                <input type="number" id="completion" name="completion" min="0" max="100" placeholder="0">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-wallet"></i> Total Budget (₹)</label>
+                <input type="number" id="budget" name="budget" step="0.01" placeholder="0.00">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-calendar-alt"></i> Project Start Date</label>
+                <input type="date" id="startDate" name="startDate">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-hourglass-half"></i> Delivery Deadline</label>
+                <input type="date" id="deadline" name="deadline">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-users"></i> Workforce Count</label>
+                <input type="number" id="workersCount" name="workersCount" placeholder="0">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Client Name</label>
+                <input type="text" id="clientName" name="clientName" placeholder="Contact person">
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-phone"></i> Client Phone</label>
+                <input type="text" id="clientPhone" name="clientPhoneNumber" placeholder="Phone number">
+            </div>
+
+            <div class="form-group full-width">
+                <label><i class="fas fa-map-marker-alt"></i> Site Location</label>
+                <input type="text" id="siteLocation" name="siteLocation" placeholder="Full address of the site">
+            </div>
+            
+            <div class="form-group full-width">
+                <label><i class="fas fa-user-hard-hat"></i> Assigned Site Engineer *</label>
+                <select id="siteEngineerId" name="siteEngineerId" required>
+                    <option value="">Fetching engineers...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-save"><i class="fas fa-check-circle"></i> Save Changes</button>
+            <a href="/md/dashboard" class="btn btn-cancel"><i class="fas fa-times"></i> Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const siteId = params.get("siteId");
+
+    // Toggle logic for sections
+    function handleStatusChange() {
+        const status = document.getElementById("status").value;
+        const sectionCompleted = document.getElementById("sectionCompleted");
+        const sectionHalted = document.getElementById("sectionHalted");
+
+        sectionCompleted.style.display = "none";
+        sectionHalted.style.display = "none";
+
+        if (status === "completed") {
+            sectionCompleted.style.display = "grid";
+        } else if (status === "halted") {
+            sectionHalted.style.display = "grid";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        if (!siteId) {
+            alert("Error: Site ID is missing.");
+            window.location.href = "/md/dashboard";
+            return;
+        }
+
+        try {
+            // 1. Load Supervisors
+            const supRes = await fetch("/md/supervisors");
+            const supervisors = await supRes.json();
+            const select = document.getElementById("siteEngineerId");
+            select.innerHTML = '<option value="">-- Select Assigned Engineer --</option>';
+            supervisors.forEach(s => {
+                select.innerHTML += `<option value="${s.userId}">${s.username}</option>`;
+            });
+
+            // 2. Load Existing Site Data
+            const res = await fetch(`/md/siteDetails/${siteId}`);
+            if (!res.ok) throw new Error("Failed to fetch site data");
+            const site = await res.json();
+
+            // 3. Populate Form Fields
+            document.getElementById("siteName").value = site.siteName || "";
+            document.getElementById("status").value = site.status || "ongoing";
+            document.getElementById("risk").value = site.risk || "On Track";
+            document.getElementById("completion").value = site.completion || 0;
+            document.getElementById("budget").value = site.budget || 0;
+            document.getElementById("workersCount").value = site.workersCount || 0;
+            document.getElementById("clientName").value = site.clientName || "";
+            document.getElementById("clientPhone").value = site.clientPhoneNumber || "";
+            document.getElementById("siteLocation").value = site.siteLocation || "";
+            document.getElementById("siteEngineerId").value = site.siteEngineerId || "";
+            document.getElementById("feedback").value = site.feedback || "";
+            document.getElementById("haltReason").value = site.haltReason || "";
+
+            // Format dates
+            const formatDate = (dateStr) => dateStr ? dateStr.split('T')[0] : "";
+            document.getElementById("startDate").value = formatDate(site.startDate);
+            document.getElementById("deadline").value = formatDate(site.deadline);
+            document.getElementById("completedDate").value = formatDate(site.completedDate);
+            document.getElementById("haltDate").value = formatDate(site.haltDate);
+
+            // Trigger visibility based on loaded status
+            handleStatusChange();
+
+        } catch (err) {
+            console.error(err);
+            alert("Error loading site information.");
+        }
+    });
+
+    document.getElementById("editSiteForm").addEventListener("submit", async e => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const payload = Object.fromEntries(formData.entries());
+
+        // Clean up payload based on status
+        if (payload.status !== 'completed') {
+            delete payload.completedDate;
+            delete payload.feedback;
+        }
+        if (payload.status !== 'halted') {
+            delete payload.haltReason;
+            delete payload.haltDate;
+        }
+
+        try {
+            const res = await fetch(`/md/sites/${siteId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.error || "Update failed");
+
+            alert("Success: Site details updated.");
+            window.location.href = "/md/dashboard";
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+</script>
+
+</body>
+</html>

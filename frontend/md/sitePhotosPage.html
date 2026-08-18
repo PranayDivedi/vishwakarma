@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Site Progress Assets | Vishwakarma ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /*-------------------------------------------
+         * THEME: ENHANCED TEAL & SLATE (MATCHED)
+        /*-------------------------------------------*/
+        :root {
+            --primary-color: #0d9488; --primary-color-dark: #0f766e; --primary-color-light: #f0fdfa;
+            --sidebar-bg: #1e293b; --sidebar-text: #cbd5e1; --sidebar-text-hover: #ffffff;
+            --background-page: #f1f5f9; --background-card: #ffffff;
+            --text-primary: #0f172a; --text-secondary: #475569; --text-muted: #94a3b8;
+            --border-color: #e2e8f0; --success-color: #22c55e; --danger-color: #ef4444;
+            --warning-color: #f59e0b; --info-color: #3b82f6;
+            --font-family: 'Poppins', sans-serif; --border-radius: 0.75rem;
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.05); --transition-speed: 0.3s ease;
+        }
+
+        /* Global Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-family); }
+        body { background-color: var(--background-page); color: var(--text-primary); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar (Matched) */
+        .sidebar {
+            width: 260px; background-color: var(--sidebar-bg); color: var(--sidebar-text);
+            display: flex; flex-direction: column; flex-shrink: 0; border-right: 1px solid var(--border-color); height: 100vh;
+        }
+        .sidebar-header { padding: 1.5rem 1.25rem; text-align: center; }
+        .logo-text { font-size: 1.6rem; font-weight: 700; color: var(--sidebar-text-hover); text-decoration: none; }
+        .sidebar-nav { flex-grow: 1; padding: 0 1rem; overflow-y: auto; }
+        .sidebar-nav a { 
+            display: flex; align-items: center; color: var(--sidebar-text); text-decoration: none; 
+            padding: 12px 18px; border-radius: 8px; margin-bottom: 8px; transition: all var(--transition-speed); border-left: 4px solid transparent; 
+        }
+        .sidebar-nav a:hover { background-color: rgba(255, 255, 255, 0.05); color: var(--sidebar-text-hover); border-left-color: var(--primary-color); }
+        .sidebar-nav a.active { background-color: var(--primary-color); color: var(--sidebar-text-hover); font-weight: 600; }
+        .sidebar-nav i { margin-right: 12px; width: 20px; text-align: center; }
+
+        /* Main Content Area */
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .header { 
+            background: var(--background-card); padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); 
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; 
+        }
+        .header-title { display: flex; align-items: center; gap: 15px; }
+        .content-area { padding: 1.5rem; overflow-y: auto; flex-grow: 1; }
+
+        /* Stats Row */
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem; }
+        .stat-card { 
+            background: white; padding: 1.25rem; border-radius: var(--border-radius); 
+            box-shadow: var(--shadow-md); border-left: 5px solid var(--primary-color);
+        }
+        .stat-card label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .stat-card .val { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-top: 5px; }
+
+        /* Gallery Grid */
+        .gallery {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;
+        }
+
+        .photo-card {
+            background: var(--background-card); border-radius: var(--border-radius); 
+            overflow: hidden; position: relative; box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color); transition: transform 0.3s;
+        }
+        .photo-card:hover { transform: translateY(-5px); }
+        
+        .photo-card img { width: 100%; height: 200px; object-fit: cover; cursor: pointer; display: block; }
+
+        .doc-placeholder {
+            height: 200px; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; background: #f8fafc; border-bottom: 1px solid var(--border-color);
+        }
+        .doc-placeholder i { font-size: 50px; color: var(--text-muted); }
+
+        .photo-info { padding: 15px; }
+        .photo-caption summary { font-weight: 600; font-size: 0.9rem; cursor: pointer; color: var(--primary-color); outline: none; }
+        .photo-caption p { font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.4; }
+
+        .delete-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(239, 68, 68, 0.9); border: none; color: #fff;
+            width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .delete-btn:hover { background: var(--danger-color); transform: scale(1.1); }
+
+        /* Buttons & Modal */
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 0.85rem; }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-outline { background: #e2e8f0; color: var(--text-secondary); }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); justify-content: center; align-items: center; z-index: 2000; backdrop-filter: blur(4px); }
+        .modal-content { background: white; padding: 2rem; border-radius: var(--border-radius); width: 100%; max-width: 450px; box-shadow: var(--shadow-md); }
+        .modal-content h3 { margin-bottom: 1.5rem; }
+        
+        input[type="file"], textarea {
+            width: 100%; padding: 12px; margin-bottom: 15px;
+            border-radius: 8px; border: 1px solid var(--border-color); outline: none; font-size: 0.9rem;
+        }
+        textarea { resize: none; height: 100px; }
+
+        @media (max-width: 768px) { .sidebar { display: none; } .stats-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="logo-text">Vishwakarma</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/md/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <a href="/md/siteDetailsPage" class="active"><i class="fas fa-building"></i> Site Details</a>
+            <a href="/md/EmployeesPage"><i class="fas fa-users-cog"></i> Employees</a>
+            <a href="/md/financialsPage"><i class="fas fa-wallet"></i> Financials</a>
+            <a href="/md/clientRequirementsPage"><i class="fas fa-user-check"></i> Client Requirements</a>
+            <a href="/md/stockRequestsPage"><i class="fas fa-cubes"></i> Stock Requests</a>
+            <a href="/md/allSitesPage"><i class="fas fa-map-marked-alt"></i> All Sites</a>
+            <a href="/md/allGalleryPage"><i class="fas fa-images"></i> Gallery</a>
+            <a href="/md/performancePage"><i class="fas fa-chart-pie"></i> Performance</a>
+            <a href="#" onclick="logout()" style="margin-top: 20px; color: var(--danger-color);"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-title">
+                <a href="#" id="backBtn" class="btn btn-outline"><i class="fas fa-arrow-left"></i></a>
+                <h2>Site Progress Assets</h2>
+            </div>
+            <button class="btn btn-primary" onclick="openUploadModal()"><i class="fas fa-upload"></i> Upload Asset</button>
+        </header>
+
+        <section class="content-area">
+            <!-- Asset Stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <label>Total Assets</label>
+                    <div id="stat-total" class="val">0</div>
+                </div>
+                <div class="stat-card" style="border-left-color: var(--info-color);">
+                    <label>Images</label>
+                    <div id="stat-images" class="val">0</div>
+                </div>
+                <div class="stat-card" style="border-left-color: var(--warning-color);">
+                    <label>Documents</label>
+                    <div id="stat-docs" class="val">0</div>
+                </div>
+            </div>
+
+            <div class="gallery" id="photoGallery">
+                <!-- JS Dynamic Content -->
+            </div>
+        </section>
+    </main>
+
+    <!-- UPLOAD MODAL -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <h3>Upload Progress Asset</h3>
+            <form id="uploadForm">
+                <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Select Image or Document</label>
+                <input type="file" id="photoFile" accept="image/*,.pdf,.doc,.docx" required>
+                
+                <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Asset Description</label>
+                <textarea id="caption" placeholder="Describe the progress (e.g. Foundation stage completed)" required></textarea>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 2;">Confirm Upload</button>
+                    <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeUploadModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const siteId = new URLSearchParams(location.search).get("siteId");
+        document.getElementById("backBtn").href = `/md/siteDetailsPage?siteId=${siteId}`;
+
+        const galleryEl = document.getElementById("photoGallery");
+        const uploadModal = document.getElementById("uploadModal");
+        const uploadForm = document.getElementById("uploadForm");
+        const photoFileEl = document.getElementById("photoFile");
+        const captionEl = document.getElementById("caption");
+
+        async function loadPhotos() {
+            const res = await fetch(`/md/photos/${siteId}`);
+            const data = await res.json();
+
+            let imgCount = 0;
+            let docCount = 0;
+
+            galleryEl.innerHTML = data.length ? "" : `<p style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted);">No progress assets uploaded yet.</p>`;
+
+            data.forEach(p => {
+                const url = p.photoUrl.toLowerCase();
+                const isImage = /\.(jpg|jpeg|png|webp|gif)$/.test(url);
+                
+                if (isImage) imgCount++; else docCount++;
+
+                const filePreview = isImage
+                    ? `<img src="${p.photoUrl}" alt="Site photo" onclick="window.open('${p.photoUrl}')">`
+                    : `<div class="doc-placeholder" onclick="window.open('${p.photoUrl}')">
+                         <i class="fas fa-file-invoice"></i>
+                         <span style="margin-top:10px; font-size:12px; font-weight:600; color:var(--primary-color)">OPEN DOCUMENT</span>
+                       </div>`;
+
+                galleryEl.innerHTML += `
+                    <div class="photo-card">
+                        <button class="delete-btn" onclick="deletePhoto(${p.photoId})"><i class="fas fa-trash"></i></button>
+                        ${filePreview}
+                        <div class="photo-info">
+                            <div class="photo-caption">
+                                <details>
+                                    <summary>Description</summary>
+                                    <p>${p.caption || 'No description provided'}</p>
+                                </details>
+                            </div>
+                            <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+                                <small style="color:var(--text-muted)"><i class="far fa-calendar-alt"></i> ${new Date(p.uploadedAt).toLocaleDateString("en-IN")}</small>
+                                <i class="fas ${isImage ? 'fa-image' : 'fa-file-alt'}" style="color:var(--border-color)"></i>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+
+            document.getElementById('stat-total').innerText = data.length;
+            document.getElementById('stat-images').innerText = imgCount;
+            document.getElementById('stat-docs').innerText = docCount;
+        }
+
+        function openUploadModal() { uploadForm.reset(); uploadModal.style.display = "flex"; }
+        function closeUploadModal() { uploadModal.style.display = "none"; }
+
+        uploadForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append("siteId", siteId);
+            formData.append("photo", photoFileEl.files[0]);
+            formData.append("caption", captionEl.value.trim());
+
+            await fetch("/md/photos", { method: "POST", body: formData });
+            closeUploadModal();
+            loadPhotos();
+        };
+
+        async function deletePhoto(id) {
+            if (confirm("Permanently remove this asset?")) {
+                await fetch(`/md/photos/${id}`, { method: "DELETE" });
+                loadPhotos();
+            }
+        }
+
+        function logout() { fetch("/auth/logout", { method: "POST" }).then(() => location.href = "/"); }
+
+        loadPhotos();
+    </script>
+</body>
+</html>
